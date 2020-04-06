@@ -3,11 +3,14 @@ package com.tom.autobetter.service.betfair;
 import com.tom.autobetter.api.ApiNgJsonRpcOperations;
 import com.tom.autobetter.api.ApiNgOperations;
 import com.tom.autobetter.data.SessionToken;
+import com.tom.autobetter.dynamodb.AddBet;
+import com.tom.autobetter.dynamodb.AutobetterRepository;
 import com.tom.autobetter.entity.betfair.*;
 import com.tom.autobetter.enums.*;
 import com.tom.autobetter.exceptions.APINGException;
 import com.tom.autobetter.util.HttpUtil;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -91,7 +94,12 @@ public class BetfairService {
         return null;
     }
 
+    @Autowired
+    AutobetterRepository autobetterRepository;
+
     public void placeBets() {
+
+        autobetterRepository.findAllById(1);
 //            /**
 //             * PlaceOrders: we try to place a bet, based on the previous request we provide the following:
 //             * marketId: the market id
