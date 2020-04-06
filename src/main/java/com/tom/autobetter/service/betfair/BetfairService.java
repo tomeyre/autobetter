@@ -3,7 +3,6 @@ package com.tom.autobetter.service.betfair;
 import com.tom.autobetter.api.ApiNgJsonRpcOperations;
 import com.tom.autobetter.api.ApiNgOperations;
 import com.tom.autobetter.data.SessionToken;
-import com.tom.autobetter.dynamodb.AddBet;
 import com.tom.autobetter.dynamodb.AutobetterRepository;
 import com.tom.autobetter.entity.betfair.*;
 import com.tom.autobetter.enums.*;
