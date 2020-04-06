@@ -97,8 +97,13 @@ public class BetfairService {
     AutobetterRepository autobetterRepository;
 
     public void placeBets() {
-
-        autobetterRepository.findAllById(1);
+        try {
+            System.out.println("starting dynamoDb");
+            autobetterRepository.findAllById(1);
+        }catch (Exception e){
+            System.out.println("Error with dynamoDb");
+            e.printStackTrace();
+        }
 //            /**
 //             * PlaceOrders: we try to place a bet, based on the previous request we provide the following:
 //             * marketId: the market id
