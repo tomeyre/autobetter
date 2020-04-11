@@ -28,4 +28,8 @@ public class Meet {
     public void setRaces(List<RaceSummary> races) {
         this.races = races;
     }
+
+    public MeetingSummary getMeetingSummary() {
+        return meetingSummary;
+    }
 }

@@ -11,10 +11,9 @@ import java.util.Properties;
 public class SendEmailSMTP {
 
     // for example, smtp.mailgun.org
-    private static final String SMTP_SERVER = "smtp.gmail.com";
-    private static final String EMAIL_TEXT = "{0} bets placed costing £{1}, you have £{2} left to bet with";
+    private static final String SMTP_SERVER = "smtp.gmail.com";;
 
-    public void sendMessage(Integer betsPlaced, Double totalCost, Double moneyLeft) {
+    public void sendMessage(String emailMessage) {
 
         Properties prop = new Properties();
         prop.put("mail.smtp.auth", true);
@@ -38,7 +37,7 @@ public class SendEmailSMTP {
             message.setSubject("Bets have been placed");
 
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
-            mimeBodyPart.setContent(MessageFormat.format(EMAIL_TEXT,betsPlaced, totalCost, moneyLeft), "text/html");
+            mimeBodyPart.setContent(emailMessage, "text/html");
 
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(mimeBodyPart);

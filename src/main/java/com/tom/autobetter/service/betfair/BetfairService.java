@@ -2,11 +2,15 @@ package com.tom.autobetter.service.betfair;
 
 import com.tom.autobetter.api.ApiNgJsonRpcOperations;
 import com.tom.autobetter.api.ApiNgOperations;
+import com.tom.autobetter.data.Bet;
 import com.tom.autobetter.data.SessionToken;
-import com.tom.autobetter.dynamodb.AutobetterRepository;
 import com.tom.autobetter.entity.betfair.*;
+import com.tom.autobetter.entity.dynamodb.Event;
+import com.tom.autobetter.entity.dynamodb.Race;
+import com.tom.autobetter.entity.dynamodb.RaceDayEntity;
 import com.tom.autobetter.enums.*;
 import com.tom.autobetter.exceptions.APINGException;
+import com.tom.autobetter.repository.dynamodb.AutobetterRepository;
 import com.tom.autobetter.util.HttpUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,14 +100,54 @@ public class BetfairService {
     @Autowired
     AutobetterRepository autobetterRepository;
 
-    public void placeBets() {
-        try {
-            System.out.println("starting dynamoDb");
-            autobetterRepository.findAllById(1);
-        }catch (Exception e){
-            System.out.println("Error with dynamoDb");
-            e.printStackTrace();
+    public void placeBetsWithBetfair(List<Bet> betsToPlace) {
+        RaceDayEntity raceDayEntity = new RaceDayEntity();
+        raceDayEntity.setEventDate(betsToPlace.get(0).getEventDate());
+        for (int i = 0; i < betsToPlace.size(); i++) {
+            if (raceDayEntity.getEvents().isEmpty()) {
+                List<Event> events = new ArrayList<>();
+                events.add(createNewEvent(betsToPlace.get(i)));
+                raceDayEntity.setEvents(events);
+                continue;
+            }
+            for (int j = 0; j < raceDayEntity.getEvents().size(); j++) {
+                if(raceDayEntity.getEvents().get(j).getEventId() == betsToPlace.get(i).getEventId()){
+                    List<Race> races = raceDayEntity.getEvents().get(j).getRaces();
+                    races.add(createNewRace(betsToPlace.get(i)));
+                    raceDayEntity.getEvents().get(j).setRaces(races);
+                    break;
+                }
+                if (j == raceDayEntity.getEvents().size() - 1) {
+                    List<Event> events = new ArrayList<>();
+                    events.add(createNewEvent(betsToPlace.get(i)));
+                    raceDayEntity.setEvents(events);
+                    break;
+                }
+            }
         }
+        autobetterRepository.save(raceDayEntity);
+    }
+
+    private Race createNewRace(Bet bet){
+        Race race = new Race();
+        race.setCorrect(null);
+        race.setHorseName(bet.getHorseName());
+        race.setOdds(bet.getOdds());
+        race.setRace(bet.getRace());
+        race.setRaceId(bet.getRaceId());
+        return race;
+    }
+
+    private Event createNewEvent(Bet bet){
+        Event event = new Event();
+        event.setEventId(bet.getEventId());
+        event.setEventName(bet.getEventName());
+        List<Race> races = new ArrayList<>();
+        races.add(createNewRace(bet));
+        event.setRaces(races);
+        return event;
+    }
+
 //            /**
 //             * PlaceOrders: we try to place a bet, based on the previous request we provide the following:
 //             * marketId: the market id
@@ -155,5 +199,4 @@ public class BetfairService {
 //                System.out.println("Sorry, no runners found\n\n");
 //            }
 //
-    }
 }

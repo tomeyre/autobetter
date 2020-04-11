@@ -2,14 +2,19 @@ package com.tom.autobetter.entity.sporting_life;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 public class Result {
 
     @JsonProperty(value = "race_id")
     private Integer raceId;
     @JsonProperty(value = "date")
-    private String date;
+    private Calendar date;
     @JsonProperty(value = "time")
-    private String time;
+    private Calendar time;
     @JsonProperty(value = "course_name")
     private String courseName;
     @JsonProperty(value = "distance")
@@ -65,20 +70,36 @@ public class Result {
         this.raceId = raceId;
     }
 
-    public String getDate() {
+    public Calendar getDate() {
         return date;
     }
 
     public void setDate(String date) {
-        this.date = date;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date temp = simpleDateFormat.parse(date);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(temp);
+            this.date = calendar;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
-    public String getTime() {
+    public Calendar getTime() {
         return time;
     }
 
     public void setTime(String time) {
-        this.time = time;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm");
+        try {
+            Date temp = simpleDateFormat.parse(time);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(temp);
+            this.date = calendar;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getCourseName() {
