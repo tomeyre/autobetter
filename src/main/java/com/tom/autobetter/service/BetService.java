@@ -38,7 +38,7 @@ public class BetService {
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR,2020);
-        calendar.set(Calendar.MONTH,3);
+        calendar.set(Calendar.MONTH,2);
         calendar.set(Calendar.DAY_OF_MONTH,1);
         raceDayDate.setCalendar(calendar);
 
