@@ -9,6 +9,15 @@ public class Race {
     private String horseName;
     private Boolean correct;
     private Double odds;
+    private Long betId;
+
+    public Long getBetId() {
+        return betId;
+    }
+
+    public void setBetId(Long betId) {
+        this.betId = betId;
+    }
 
     public Integer getRaceId() {
         return raceId;

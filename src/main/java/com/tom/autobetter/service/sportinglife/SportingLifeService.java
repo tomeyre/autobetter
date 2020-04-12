@@ -3,15 +3,17 @@ package com.tom.autobetter.service.sportinglife;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tom.autobetter.data.Bet;
 import com.tom.autobetter.data.RaceDayDate;
 import com.tom.autobetter.data.Winner;
 import com.tom.autobetter.entity.betfair.MarketFilter;
+import com.tom.autobetter.entity.dynamodb.Event;
+import com.tom.autobetter.entity.dynamodb.Race;
 import com.tom.autobetter.entity.dynamodb.RaceDayEntity;
 import com.tom.autobetter.entity.sporting_life.Horse;
 import com.tom.autobetter.entity.sporting_life.Meet;
 import com.tom.autobetter.entity.sporting_life.RaceDetails;
 import com.tom.autobetter.entity.sporting_life.RaceSummary;
+import com.tom.autobetter.repository.dynamodb.AutobetterRepository;
 import com.tom.autobetter.service.betfair.BetfairService;
 import com.tom.autobetter.util.CalculationUtil;
 import com.tom.autobetter.util.HttpUtil;
@@ -26,6 +28,9 @@ public class SportingLifeService {
 
     @Autowired
     private BetfairService betfairService;
+
+    @Autowired
+    AutobetterRepository autobetterRepository;
 
     private CalculationUtil calculationUtil = new CalculationUtil();
     private RaceDayDate raceDayDate = RaceDayDate.getInstance();
@@ -48,41 +53,68 @@ public class SportingLifeService {
         return null;
     }
 
-    public List<Bet> workOutBetsToPlace(List<Meet> raceDay){
-        List<Bet> response = new ArrayList();
+    public RaceDayEntity workOutBetsToPlace(List<Meet> raceDay){
+        RaceDayEntity response = new RaceDayEntity();
+        response.setEventDate(raceDayDate.getCalendar().getTimeInMillis());
+
         MarketFilter marketFilter;
         marketFilter = new MarketFilter();
         Set<String> eventTypeIds = new HashSet<String>();
         eventTypeIds.add("7");
         marketFilter.setEventIds(eventTypeIds);
+        List<Event> newEvents = new ArrayList<>();
+        response.setEvents(newEvents);
 
 //        List<MarketCatalogue> marketCatalogueList = betfairService.getHorseRacesToday(calendar);
-        raceDay.stream().forEach(meet -> meet.getRaces().stream().forEach(race -> {
-            try {
-                System.out.println(RACE_URL + race.getRaceSummaryReference().getId());
-                race.setRaceDetails(mapper.readValue(httpUtil.getJSONFromUrl(RACE_URL + race.getRaceSummaryReference().getId()), new TypeReference<RaceDetails>() {}));
-                Winner winner = workOutRaceWinner(race);
-                System.out.println(winner.getName() + " :: " + winner.getCorrect());
+        raceDay.stream().forEach(meet ->
+        {
+            List<Event> events = response.getEvents();
+            events.add(createNewEvent(meet));
+            response.setEvents(events);
+            meet.getRaces().stream().forEach(race -> {
+                try {
+                    System.out.println(RACE_URL + race.getRaceSummaryReference().getId());
+                    race.setRaceDetails(mapper.readValue(httpUtil.getJSONFromUrl(RACE_URL + race.getRaceSummaryReference().getId()), new TypeReference<RaceDetails>() {}));
+                    Winner winner = workOutRaceWinner(race);
+                    System.out.println(winner.getName() + " :: " + winner.getCorrect());
 
 //                for(MarketCatalogue marketCatalogue : marketCatalogueList){
 //                    for(RunnerCatalog runner : marketCatalogue.getRunners()){
 //                        if(runner.getRunnerName().toLowerCase().contains(race.getRaceDetails().getHorses().get(0).getHorseDetails().getName().toLowerCase())){
-//                            response.add(new Bet(race.getCourseName(),winner.getName(),1l, race.getTime(),race.getMeetingSummaryReference().getId(), winner.getOdds()));//runner.getSelectionId()));
-                //String race, String horseName, Long betId, String time, Integer raceId, Double odds
-//                            break;
+                    List<Race> raceList = response.getEvents().stream().filter(event -> event.getEventId() == meet.getMeetingSummary().getMeetingReference().getId()).findFirst().get().getRaces();
+                    raceList.add(createNewRace(race, winner/*, runner.getSelectionId()*/));
+                    response.getEvents().stream().filter(event -> event.getEventId() == meet.getMeetingSummary().getMeetingReference().getId()).findFirst().get().setRaces(raceList);
+                    //break;
 //                        }
 //                    }
 //                }
 
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+        });
         return response;
     }
 
-    public List<RaceDayEntity> reportWinners(){
-        return null;
+    private Race createNewRace(RaceSummary race, Winner winner/*, Long betId*/){
+        Race raceEntity = new Race();
+        raceEntity.setCorrect(null);
+        raceEntity.setHorseName(winner.getName());
+        raceEntity.setOdds(winner.getOdds());
+        raceEntity.setRace(race.getCourseName());
+        raceEntity.setRaceId(race.getRaceSummaryReference().getId());
+        raceEntity.setBetId(1l);
+        return raceEntity;
+    }
+
+    private Event createNewEvent(Meet meet){
+        Event event = new Event();
+        event.setEventId(meet.getMeetingSummary().getMeetingReference().getId());
+        event.setEventName(meet.getMeetingSummary().getCourse().getName());
+        List<Race> races = new ArrayList<>();
+        event.setRaces(races);
+        return event;
     }
 
     private Winner workOutRaceWinner(RaceSummary race){

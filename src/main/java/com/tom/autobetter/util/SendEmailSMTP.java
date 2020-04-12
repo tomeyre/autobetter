@@ -37,7 +37,7 @@ public class SendEmailSMTP {
             message.setSubject("Bets have been placed");
 
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
-            mimeBodyPart.setContent(emailMessage, "text/html");
+            mimeBodyPart.setContent(emailMessage, "text/plain");
 
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(mimeBodyPart);

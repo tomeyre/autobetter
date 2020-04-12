@@ -2,11 +2,8 @@ package com.tom.autobetter.service.betfair;
 
 import com.tom.autobetter.api.ApiNgJsonRpcOperations;
 import com.tom.autobetter.api.ApiNgOperations;
-import com.tom.autobetter.data.Bet;
 import com.tom.autobetter.data.SessionToken;
 import com.tom.autobetter.entity.betfair.*;
-import com.tom.autobetter.entity.dynamodb.Event;
-import com.tom.autobetter.entity.dynamodb.Race;
 import com.tom.autobetter.entity.dynamodb.RaceDayEntity;
 import com.tom.autobetter.enums.*;
 import com.tom.autobetter.exceptions.APINGException;
@@ -24,6 +21,9 @@ import static com.tom.autobetter.util.CommonConstants.ACCOUNT_APING_V1_0;
 @Service
 public class BetfairService {
 
+    @Autowired
+    AutobetterRepository autobetterRepository;
+
     private ApiNgOperations jsonOperations = ApiNgJsonRpcOperations.getInstance();
     private SessionToken sessionToken = SessionToken.getInstance();
     private HttpUtil httpUtil = new HttpUtil();
@@ -31,7 +31,7 @@ public class BetfairService {
     public void login(){
 //        if(sessionToken.getSsoId() == null) {
             JSONObject body = new JSONObject();
-            body.put("username", "tom.eyre8770@gmail.com").put("password", System.getenv("PASS_TWO"));
+        body.put("username", "tom.eyre8770@gmail.com").put("password", System.getenv("PASS_TWO"));
             sessionToken.setSsoId(httpUtil.loginToBetfair("https://identitysso-cert.betfair.com/api/certlogin", body.toString()));
 //        }
     }
@@ -97,55 +97,8 @@ public class BetfairService {
         return null;
     }
 
-    @Autowired
-    AutobetterRepository autobetterRepository;
-
-    public void placeBetsWithBetfair(List<Bet> betsToPlace) {
-        RaceDayEntity raceDayEntity = new RaceDayEntity();
-        raceDayEntity.setEventDate(betsToPlace.get(0).getEventDate());
-        for (int i = 0; i < betsToPlace.size(); i++) {
-            if (raceDayEntity.getEvents().isEmpty()) {
-                List<Event> events = new ArrayList<>();
-                events.add(createNewEvent(betsToPlace.get(i)));
-                raceDayEntity.setEvents(events);
-                continue;
-            }
-            for (int j = 0; j < raceDayEntity.getEvents().size(); j++) {
-                if(raceDayEntity.getEvents().get(j).getEventId() == betsToPlace.get(i).getEventId()){
-                    List<Race> races = raceDayEntity.getEvents().get(j).getRaces();
-                    races.add(createNewRace(betsToPlace.get(i)));
-                    raceDayEntity.getEvents().get(j).setRaces(races);
-                    break;
-                }
-                if (j == raceDayEntity.getEvents().size() - 1) {
-                    List<Event> events = new ArrayList<>();
-                    events.add(createNewEvent(betsToPlace.get(i)));
-                    raceDayEntity.setEvents(events);
-                    break;
-                }
-            }
-        }
+    public void placeBetsWithBetfair(RaceDayEntity raceDayEntity) {
         autobetterRepository.save(raceDayEntity);
-    }
-
-    private Race createNewRace(Bet bet){
-        Race race = new Race();
-        race.setCorrect(null);
-        race.setHorseName(bet.getHorseName());
-        race.setOdds(bet.getOdds());
-        race.setRace(bet.getRace());
-        race.setRaceId(bet.getRaceId());
-        return race;
-    }
-
-    private Event createNewEvent(Bet bet){
-        Event event = new Event();
-        event.setEventId(bet.getEventId());
-        event.setEventName(bet.getEventName());
-        List<Race> races = new ArrayList<>();
-        races.add(createNewRace(bet));
-        event.setRaces(races);
-        return event;
     }
 
 //            /**
