@@ -13,7 +13,7 @@ public class SendEmailSMTP {
     // for example, smtp.mailgun.org
     private static final String SMTP_SERVER = "smtp.gmail.com";;
 
-    public void sendMessage(String emailMessage) {
+    public void sendMessage(String emailMessage, String title) {
 
         Properties prop = new Properties();
         prop.put("mail.smtp.auth", true);
@@ -34,7 +34,7 @@ public class SendEmailSMTP {
             message.setFrom(new InternetAddress("tom.eyre8770@gmail.com"));
             message.setRecipients(
                     Message.RecipientType.TO, InternetAddress.parse("tom.eyre8770@gmail.com"));
-            message.setSubject("Bets have been placed");
+            message.setSubject(title);
 
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
             mimeBodyPart.setContent(emailMessage, "text/plain");

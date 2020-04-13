@@ -1,6 +1,7 @@
 package com.tom.autobetter.data;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public final class RaceDayDate {
 
@@ -11,9 +12,15 @@ public final class RaceDayDate {
         if(raceDayDate == null){
             raceDayDate = new RaceDayDate();
             calendar = Calendar.getInstance();
-            calendar.set(Calendar.YEAR,2020);
-            calendar.set(Calendar.MONTH,2);
-            calendar.set(Calendar.DAY_OF_MONTH,1);
+            String dateString = System.getenv("date");
+            if(dateString != null) {
+                calendar.set(Calendar.YEAR, Integer.parseInt(dateString.split("-")[0]));
+                calendar.set(Calendar.MONTH, Integer.parseInt(dateString.split("-")[1]));
+                calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dateString.split("-")[2]));
+            }else {
+                Date date = new Date();
+                calendar.setTime(date);
+            }
             calendar.set(Calendar.HOUR_OF_DAY,0);
             calendar.set(Calendar.MINUTE,0);
             calendar.set(Calendar.SECOND,0);

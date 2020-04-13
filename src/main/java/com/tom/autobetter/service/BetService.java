@@ -55,7 +55,7 @@ public class BetService {
 
         String message = MessageFormat.format("{0} bets placed across {1} events costing £{2}, you have £{3} left to bet with", toFlatList(raceDayEntities, Race.class).size(), raceDay.size(), "0.0", betfairService.getAccountFunds().toString());
         System.out.println(message);
-        sendEmailSMTP.sendMessage(message);
+        sendEmailSMTP.sendMessage(message, "Bets have been placed");
 
         return null;
     }
@@ -71,14 +71,14 @@ public class BetService {
         message.append(MessageFormat.format("{0} bets placed across {1} events...\r\n", toFlatList(betsPlaced, Race.class).size(), toFlatList(betsPlaced, Event.class).size()));
         for(RaceDayEntity raceDayEntity : betsPlaced) {
             for (Event event : raceDayEntity.getEvents()) {
-                message.append(MessageFormat.format("{0} {1} out of {2} correct\r\n", event.getEventName(), event.getRaces().stream().filter(race -> race.getCorrect()).count(), raceDayEntity, event.getRaces().size()));
+                message.append(MessageFormat.format("{0} {1} out of {2} correct\r\n", event.getEventName(), event.getRaces().stream().filter(race -> race.getCorrect()).collect(Collectors.toList()).size(), raceDayEntity, event.getRaces().size()));
                 for (Race race : event.getRaces()) {
                     message.append(MessageFormat.format("Race {0} my guess {1}, actual winner {2}\r\n", race.getRaceId(), race.getHorseName(), race.getCorrect()));
                 }
             }
         }
         System.out.println(message.toString());
-        sendEmailSMTP.sendMessage(message.toString());
+        sendEmailSMTP.sendMessage(message.toString(), "Results");
         return null;
     }
 
