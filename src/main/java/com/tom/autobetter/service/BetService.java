@@ -71,6 +71,7 @@ public class BetService {
         message.append(MessageFormat.format("{0} bets placed across {1} events...\r\n", toFlatList(betsPlaced, Race.class).size(), toFlatList(betsPlaced, Event.class).size()));
         for(RaceDayEntity raceDayEntity : betsPlaced) {
             for (Event event : raceDayEntity.getEvents()) {
+                message.append(MessageFormat.format("{0} {1} out of {2} correct\r\n", event.getEventName(), event.getRaces().stream().filter(race -> race.getCorrect()).count(), raceDayEntity, event.getRaces().size()));
                 for (Race race : event.getRaces()) {
                     message.append(MessageFormat.format("Race {0} my guess {1}, actual winner {2}\r\n", race.getRaceId(), race.getHorseName(), race.getCorrect()));
                 }
