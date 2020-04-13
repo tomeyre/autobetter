@@ -5,7 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
 @DynamoDBDocument
 public class WinPercentage {
     private String race;
-    private Double winPercentage;
+    private Integer wins;
 
     public String getRace() {
         return race;
@@ -15,11 +15,11 @@ public class WinPercentage {
         this.race = race;
     }
 
-    public Double getWinPercentage() {
-        return winPercentage;
+    public Integer getWins() {
+        return wins;
     }
 
-    public void setWinPercentage(Double winPercentage) {
-        this.winPercentage = winPercentage;
+    public void setWins(Integer wins) {
+        this.wins = wins;
     }
 }
