@@ -41,7 +41,7 @@ public class BetService {
     AutobetterRepository autobetterRepository;
 
 
-    private RaceDayDate raceDayDate = RaceDayDate.getInstance();
+    private RaceDayDate raceDayDate = new RaceDayDate();
 
     public String placeBets(){
         betfairService.login();
@@ -101,7 +101,7 @@ public class BetService {
                                 for(Horse horse : raceSummary.getRaceDetails().getHorses()){
                                     if(horse.getHorseDetails().getName().equalsIgnoreCase(race.getHorseName()) && horse.getFinishingPosition() == 1){
                                         race.setCorrect(true);
-                                        int temp = winPercentage.getWins();
+                                        int temp = winPercentage.getWins() == null ? 0 : winPercentage.getWins();
                                         temp++;
                                         winPercentage.setWins(temp);
                                         break;

@@ -3,14 +3,11 @@ package com.tom.autobetter.data;
 import java.util.Calendar;
 import java.util.Date;
 
-public final class RaceDayDate {
+public class RaceDayDate {
 
-    private static RaceDayDate raceDayDate;
-    private static Calendar calendar;
+    private Calendar calendar;
 
-    public static RaceDayDate getInstance(){
-        if(raceDayDate == null){
-            raceDayDate = new RaceDayDate();
+    public RaceDayDate(){
             calendar = Calendar.getInstance();
             String dateString = System.getenv("date");
             if(dateString != null) {
@@ -25,15 +22,6 @@ public final class RaceDayDate {
             calendar.set(Calendar.MINUTE,0);
             calendar.set(Calendar.SECOND,0);
             calendar.set(Calendar.MILLISECOND,0);
-        }
-        return raceDayDate;
-    }
-
-    private RaceDayDate(){
-    }
-
-    public void setCalendar(Calendar calendar) {
-        this.calendar = calendar;
     }
 
     public Calendar getCalendar() { return calendar;}

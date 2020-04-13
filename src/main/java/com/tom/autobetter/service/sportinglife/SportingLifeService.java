@@ -33,7 +33,7 @@ public class SportingLifeService {
     AutobetterRepository autobetterRepository;
 
     private CalculationUtil calculationUtil = new CalculationUtil();
-    private RaceDayDate raceDayDate = RaceDayDate.getInstance();
+    private RaceDayDate raceDayDate = new RaceDayDate();
     private static final String RACE_DAY_URL = "https://www.sportinglife.com/api/horse-racing/racing/racecards/";
     private static final String RACE_URL = "https://www.sportinglife.com/api/horse-racing/race/";
     private HttpUtil httpUtil = new HttpUtil();

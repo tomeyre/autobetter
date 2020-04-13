@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class CalculationUtil {
 
-    private RaceDayDate raceDayDate = RaceDayDate.getInstance();
+    private RaceDayDate raceDayDate = new RaceDayDate();
 
     public Integer hasTheHorseWonAnyOfTheirLastRaces(Horse horse) {
         return horse.getHorseDetails().getPreviousResults().stream().filter(result -> !futureDate(result.getDate()) && (result.getPosition() != null && result.getPosition() == 1)).collect(Collectors.toList()).size();
