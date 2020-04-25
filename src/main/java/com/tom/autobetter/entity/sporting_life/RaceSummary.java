@@ -16,12 +16,14 @@ public class RaceSummary {
     private String name;
     @JsonProperty(value = "course_name")
     private String courseName;
+    @JsonProperty(value = "course_shortcode")
+    private String courseShortcode;
     @JsonProperty(value = "course_surface")
     private CourseSurface courseSurface;
     @JsonProperty(value = "age")
     private String age;
     @JsonProperty(value = "race_class")
-    private String raceClass;
+    private Integer raceClass;
     @JsonProperty(value = "distance")
     private String distance;
     @JsonProperty(value = "date")
@@ -40,6 +42,8 @@ public class RaceSummary {
     private Boolean hasVideo;
     @JsonProperty(value = "going")
     private String going;
+    @JsonProperty(value = "going_shortcode")
+    private String goingShortcode;
     @JsonProperty(value = "has_handicap")
     private Boolean hasHandicap;
     @JsonProperty(value = "verdict")
@@ -48,6 +52,22 @@ public class RaceSummary {
     private Boolean hidden;
     @JsonProperty(value = "promotion")
     private Promotion promotion;
+
+    public String getGoingShortcode() {
+        return goingShortcode;
+    }
+
+    public void setGoingShortcode(String goingShortcode) {
+        this.goingShortcode = goingShortcode;
+    }
+
+    public String getCourseShortcode() {
+        return courseShortcode;
+    }
+
+    public void setCourseShortcode(String courseShortcode) {
+        this.courseShortcode = courseShortcode;
+    }
 
     private RaceDetails raceDetails = new RaceDetails();
 
@@ -107,11 +127,11 @@ public class RaceSummary {
         this.age = age;
     }
 
-    public String getRaceClass() {
+    public Integer getRaceClass() {
         return raceClass;
     }
 
-    public void setRaceClass(String raceClass) {
+    public void setRaceClass(Integer raceClass) {
         this.raceClass = raceClass;
     }
 

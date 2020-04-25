@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Trainer {
+public class Trainer  extends JockeyTrainerDetails{
 
     @JsonProperty(value = "business_reference")
     private Reference trainerReference;

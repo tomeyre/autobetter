@@ -54,6 +54,8 @@ public class Horse {
     private String betMovements;
     @JsonProperty(value = "race_history_stats")
     private List<History> raceHistoryStats;
+    @JsonProperty(value = "horse_lifetime_stats")
+    private List<LifeTimeStats> lifetimeStats;
     @JsonProperty(value = "has_sp")
     private Boolean hasSp;
     @JsonProperty(value = "medication")
@@ -85,10 +87,6 @@ public class Horse {
         this.finishDistance = finishDistance;
     }
 
-    public void setRunning(Boolean running) {
-        this.running = running;
-    }
-
     public Reference getHorseReference() {
         return horseReference;
     }
@@ -118,7 +116,7 @@ public class Horse {
     }
 
     public void setRunning(String running) {
-        this.running = running.equalsIgnoreCase("running");
+        this.running = running.equalsIgnoreCase("RUNNER");
     }
 
     public HorseDetails getHorseDetails() {

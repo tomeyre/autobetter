@@ -2,6 +2,7 @@ package com.tom.autobetter.api;
 
 import com.tom.autobetter.data.SessionToken;
 import com.tom.autobetter.exceptions.APINGException;
+import com.tom.autobetter.util.CommonConstants;
 import com.tom.autobetter.util.JsonResponseHandler;
 import com.tom.autobetter.util.RescriptResponseHandler;
 import org.apache.http.client.ClientProtocolException;

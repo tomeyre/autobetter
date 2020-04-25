@@ -8,6 +8,7 @@ import com.tom.autobetter.entity.dynamodb.RaceDayEntity;
 import com.tom.autobetter.enums.*;
 import com.tom.autobetter.exceptions.APINGException;
 import com.tom.autobetter.repository.dynamodb.AutobetterRepository;
+import com.tom.autobetter.util.CommonConstants;
 import com.tom.autobetter.util.HttpUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -11,9 +11,11 @@ import com.tom.autobetter.entity.sporting_life.Horse;
 import com.tom.autobetter.entity.sporting_life.Meet;
 import com.tom.autobetter.entity.sporting_life.RaceDetails;
 import com.tom.autobetter.entity.sporting_life.RaceSummary;
+import com.tom.autobetter.enums.BetType;
 import com.tom.autobetter.repository.dynamodb.AutobetterRepository;
 import com.tom.autobetter.service.betfair.BetfairService;
 import com.tom.autobetter.service.sportinglife.SportingLifeService;
+//import com.tom.autobetter.service.sportinglife.betting.WebPageBetting;
 import com.tom.autobetter.util.HttpUtil;
 import com.tom.autobetter.util.SendEmailSMTP;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +27,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tom.autobetter.enums.BetType.*;
+
 @Service
 public class BetService {
 
-    @Autowired
-    BetfairService betfairService;
+    public static final String COUNTRY = "United States";
+    private static final String RACE_URL = "https://www.sportinglife.com/api/horse-racing/race/";
 
     @Autowired
     SportingLifeService sportingLifeService;
@@ -40,25 +44,33 @@ public class BetService {
     @Autowired
     AutobetterRepository autobetterRepository;
 
-
-    private RaceDayDate raceDayDate = new RaceDayDate();
+    private RaceDayDate raceDayDate = RaceDayDate.getInstance();
 
     public String placeBets(){
-        betfairService.login();
 
-        List<Meet> raceDay = sportingLifeService.getTheDaysRaces().stream().filter(meet -> meet.getMeetingSummary().getCourse().getCountry().getCountry().equalsIgnoreCase("England")).collect(Collectors.toList());
+        List<Meet> raceDay = sportingLifeService.getTheDaysRaces().stream().filter(meet -> meet.getMeetingSummary().getCourse().getCountry().getCountry().equalsIgnoreCase(COUNTRY)).collect(Collectors.toList());
         RaceDayEntity betsToPlace = sportingLifeService.workOutBetsToPlace(raceDay);
 
-        betfairService.placeBetsWithBetfair(betsToPlace);
+        autobetterRepository.save(betsToPlace);
 
         List<RaceDayEntity> raceDayEntities = new ArrayList<>();
         raceDayEntities.add(betsToPlace);
 
-        String message = MessageFormat.format("{0} bets placed across {1} events costing £{2}, you have £{3} left to bet with", toFlatList(raceDayEntities, Race.class).size(), raceDay.size(), "0.0", betfairService.getAccountFunds().toString());
-        System.out.println(message);
-        sendEmailSMTP.sendMessage(message, "Bets have been placed");
+        StringBuilder message = new StringBuilder();
+        for(RaceDayEntity raceDayEntity : raceDayEntities) {
+            message.append(MessageFormat.format("{0} bets placed across {1} events costing £{2}", totalBets(raceDayEntities), raceDay.size(), calculateCost(raceDayEntities)));
+            for (int i = 0; i < raceDayEntity.getEvents().size(); i++) {
+                message.append(MessageFormat.format("\r\n{0}, {1} races\r\n\r\n", raceDayEntity.getEvents().get(i).getEventName(), raceDayEntity.getEvents().get(i).getRaces().size()));
+                for (Race race : raceDayEntity.getEvents().get(i).getRaces()) {
+                    message.append(MessageFormat.format("Race {0} my guess {1}\r\n", race.getRaceTime(), race.getHorseName()));
+                }
+            }
+        }
 
-        return null;
+        System.out.println(message.toString());
+        sendEmailSMTP.sendMessage(message.toString(), "Bets have been placed");
+
+        return message.toString();
     }
 
     public String checkWinners(){
@@ -69,85 +81,119 @@ public class BetService {
         updateWinnersInDb(betsPlaced);
 
         StringBuilder message = new StringBuilder();
-        message.append(MessageFormat.format("{0} bets placed across {1} events...\r\n", toFlatList(betsPlaced, Race.class).size(), toFlatList(betsPlaced, Event.class).size()));
         for(RaceDayEntity raceDayEntity : betsPlaced) {
+            message.append(MessageFormat.format("{0} bets placed across {1} events...\r\n", totalBets(betsPlaced), totalEvents(betsPlaced)));
             for (int i = 0; i < raceDayEntity.getEvents().size(); i++) {
-                message.append(MessageFormat.format("{0} {1} out of {2} correct\r\n", raceDayEntity.getEvents().get(i).getEventName(), raceDayEntity.getWinPercentages().get(i).getWins(), raceDayEntity.getEvents().get(i).getRaces().size()));
+                message.append(MessageFormat.format("\r\n{0} {1} out of {2} correct\r\n\r\n", raceDayEntity.getEvents().get(i).getEventName(), raceDayEntity.getWinPercentages().get(i).getWins(), raceDayEntity.getEvents().get(i).getRaces().size()));
                 for (Race race : raceDayEntity.getEvents().get(i).getRaces()) {
-                    message.append(MessageFormat.format("Race {0} my guess {1}, actual winner {2}\r\n", race.getRaceId(), race.getHorseName(), race.getCorrect()));
+                    message.append(MessageFormat.format("Race {0} my guess {1}, actual winner {2} {3}\r\n", race.getRaceTime(), race.getHorseName(), race.getWinner(), race.getCorrect()));
                 }
             }
         }
         System.out.println(message.toString());
         sendEmailSMTP.sendMessage(message.toString(), "Results");
-        return null;
+        return message.toString();
+    }
+
+    private Double calculateCost(List<RaceDayEntity> raceDayEntities){
+        Double total = 0.0;
+        for(RaceDayEntity raceDayEntity :raceDayEntities){
+            for(Event event : raceDayEntity.getEvents()){
+                switch (event.getRaces().size()){
+                    case 1:
+                        total += (ONE.getType() * 0.03);
+                        break;
+                    case 2:
+                        total += (TWO.getType() * 0.03);
+                        break;
+                    case 3:
+                        total += (THREE.getType() * 0.03);
+                        break;
+                    case 4:
+                        total += (FOUR.getType() * 0.03);
+                        break;
+                    case 5:
+                        total += (FIVE.getType() * 0.03);
+                        break;
+                    case 6:
+                        total += (SIX.getType() * 0.03);
+                        break;
+                    case 7:
+                        total += (SEVEN.getType() * 0.03);
+                        break;
+                    default:
+                        total += (EIGHT.getType() * 0.03);
+                        break;
+
+                }
+            }
+        }
+        return total;
+    }
+
+    private Integer totalBets(List<RaceDayEntity>  betsPlaced){
+        Integer response = 0;
+        for(Event event : betsPlaced.get(0).getEvents()){
+            response += event.getRaces().size();
+        }
+        return response;
+    }
+
+    private Integer totalEvents(List<RaceDayEntity>  betsPlaced){
+        return betsPlaced.get(0).getEvents().size();
     }
 
     private void updateWinnersInDb(List<RaceDayEntity>  betsPlaced){
-        List<Meet> raceDay = sportingLifeService.getTheDaysRaces().stream().filter(meet -> meet.getMeetingSummary().getCourse().getCountry().getCountry().equalsIgnoreCase("England")).collect(Collectors.toList());
+        List<Meet> raceDay = sportingLifeService.getTheDaysRaces().stream().filter(meet -> meet.getMeetingSummary().getCourse().getCountry().getCountry().equalsIgnoreCase(COUNTRY)).collect(Collectors.toList());
+        for(Meet meet : raceDay){
+            for(RaceSummary raceSummary : meet.getRaces()){
+                HttpUtil httpUtil = new HttpUtil();
+                ObjectMapper mapper = new ObjectMapper();
+                System.out.println(RACE_URL + raceSummary.getRaceSummaryReference().getId());
+                try {
+                    raceSummary.setRaceDetails(mapper.readValue(httpUtil.getJSONFromUrl(RACE_URL + raceSummary.getRaceSummaryReference().getId()), new TypeReference<RaceDetails>() {}));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         for(RaceDayEntity raceDayEntity : betsPlaced){
+            List<WinPercentage> winPercentages = new ArrayList<>();
             for (Event event : raceDayEntity.getEvents()){
                 WinPercentage winPercentage = new WinPercentage();
                 winPercentage.setRace(event.getEventName());
-                for(Race race : event.getRaces()){
-                    for(Meet meet : raceDay){
-                        for(RaceSummary raceSummary : meet.getRaces()){
-                            String RACE_URL = "https://www.sportinglife.com/api/horse-racing/race/";
-                            HttpUtil httpUtil = new HttpUtil();
-                            ObjectMapper mapper = new ObjectMapper();
-                            System.out.println(RACE_URL + raceSummary.getRaceSummaryReference().getId());
-                            try {
-                                raceSummary.setRaceDetails(mapper.readValue(httpUtil.getJSONFromUrl(RACE_URL + raceSummary.getRaceSummaryReference().getId()), new TypeReference<RaceDetails>() {}));
-                                for(Horse horse : raceSummary.getRaceDetails().getHorses()){
-                                    if(horse.getHorseDetails().getName().equalsIgnoreCase(race.getHorseName()) && horse.getFinishingPosition() == 1){
-                                        race.setCorrect(true);
-                                        int temp = winPercentage.getWins() == null ? 0 : winPercentage.getWins();
-                                        temp++;
-                                        winPercentage.setWins(temp);
-                                        break;
-                                    }
-                                    if(horse.getHorseDetails().getName().equalsIgnoreCase(race.getHorseName()) && horse.getFinishingPosition() != 1){
-                                        race.setCorrect(false);
-                                        break;
+                for(Race race : event.getRaces()) {
+                    for (Meet meet : raceDay) {
+                        if(meet.getMeetingSummary().getMeetingReference().getId().equals(event.getEventId())) {
+                            for (RaceSummary raceSummary : meet.getRaces()) {
+                                if(raceSummary.getRaceSummaryReference().getId().equals(race.getRaceId())) {
+                                    for (Horse horse : raceSummary.getRaceDetails().getHorses()) {
+                                        if(horse.getFinishingPosition() == 1){
+                                            race.setWinner(horse.getHorseDetails().getName());
+                                            System.out.println("race winner = " + horse.getHorseDetails().getName() + " :: " + horse.getFinishingPosition());
+                                        }
+                                        if (horse.getHorseDetails().getName().equalsIgnoreCase(race.getHorseName()) && horse.getFinishingPosition() == 1) {
+                                            race.setCorrect(true);
+                                            int temp = winPercentage.getWins() == null ? 0 : winPercentage.getWins();
+                                            temp++;
+                                            winPercentage.setWins(temp);
+                                            System.out.println("Correct winner my guess = " + race.getHorseName() + " :: " + horse.getHorseDetails().getName() + " :: " + horse.getFinishingPosition());
+                                        }
+                                        if (horse.getHorseDetails().getName().equalsIgnoreCase(race.getHorseName()) && horse.getFinishingPosition() != 1) {
+                                            race.setCorrect(false);
+                                            System.out.println("incorrect winner my guess = " + race.getHorseName() + " :: " + horse.getHorseDetails().getName() + " :: " + horse.getFinishingPosition());
+                                        }
                                     }
                                 }
-                            } catch (IOException e) {
-                                e.printStackTrace();
                             }
                         }
                     }
                 }
-                if(raceDayEntity.getWinPercentages() == null || raceDayEntity.getWinPercentages().isEmpty()){
-                    List<WinPercentage> winPercentages = new ArrayList<>();
-                    winPercentages.add(winPercentage);
-                    raceDayEntity.setWinPercentages(winPercentages);
-                }else{
-                    List<WinPercentage> winPercentages = raceDayEntity.getWinPercentages();
-                    winPercentages.add(winPercentage);
-                    raceDayEntity.setWinPercentages(winPercentages);
-                }
+                winPercentages.add(winPercentage);
             }
+            raceDayEntity.setWinPercentages(winPercentages);
             autobetterRepository.save(raceDayEntity);
         }
-    }
-
-    private static <T> List<T> toFlatList(Collection<?> collection, Class<T> targetType) {
-        List<Object> result =
-                collection.stream()
-                        .flatMap(child -> {
-                            if (child == null) {
-                                return Stream.empty();
-                            } else if (child instanceof Collection) {
-                                return toFlatList((Collection<?>) child, targetType)
-                                        .stream();
-                            } else if (child.getClass().isAssignableFrom(targetType)) {
-                                return Stream.of(child);
-                            } else {
-                                //ignore because it's not targetType T
-                                return Stream.empty();
-                            }
-                        })
-                        .collect(Collectors.toList());
-        return (List<T>) result;
     }
 }

@@ -8,8 +8,26 @@ public class Race {
     private String race;
     private String horseName;
     private Boolean correct;
+    private String winner;
     private Double odds;
     private Long betId;
+    private String raceTime;
+
+    public String getWinner() {
+        return winner;
+    }
+
+    public void setWinner(String winner) {
+        this.winner = winner;
+    }
+
+    public String getRaceTime() {
+        return raceTime;
+    }
+
+    public void setRaceTime(String raceTime) {
+        this.raceTime = raceTime;
+    }
 
     public Long getBetId() {
         return betId;

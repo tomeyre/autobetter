@@ -17,6 +17,8 @@ public class Result {
     private Calendar time;
     @JsonProperty(value = "course_name")
     private String courseName;
+    @JsonProperty(value = "course_shortcode")
+    private String courseShortcode;
     @JsonProperty(value = "distance")
     private String distance;
     @JsonProperty(value = "run_type")
@@ -39,12 +41,38 @@ public class Result {
     private String raceName;
     @JsonProperty(value = "going")
     private String going;
+    @JsonProperty(value = "going_shortcode")
+    private String goingShortcode;
     @JsonProperty(value = "odds")
     private String odds;
     @JsonProperty(value = "ride_description")
     private String rideDescrition;
     @JsonProperty(value = "video")
     private Video video;
+
+    public String getGoingShortcode() {
+        return goingShortcode;
+    }
+
+    public void setGoingShortcode(String goingShortcode) {
+        this.goingShortcode = goingShortcode;
+    }
+
+    public void setDate(Calendar date) {
+        this.date = date;
+    }
+
+    public void setTime(Calendar time) {
+        this.time = time;
+    }
+
+    public String getCourseShortcode() {
+        return courseShortcode;
+    }
+
+    public void setCourseShortcode(String courseShortcode) {
+        this.courseShortcode = courseShortcode;
+    }
 
     public Integer getAmendedPosition() {
         return amendedPosition;
@@ -96,7 +124,7 @@ public class Result {
             Date temp = simpleDateFormat.parse(time);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(temp);
-            this.date = calendar;
+            this.time = calendar;
         } catch (ParseException e) {
             e.printStackTrace();
         }

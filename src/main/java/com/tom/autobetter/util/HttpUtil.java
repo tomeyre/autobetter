@@ -106,7 +106,7 @@ public class HttpUtil {
 
             httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 
-            httpPost.setHeader("X-Application",System.getenv("JKMBGAw4xbkfMs4X"/*"APP_KEY"*/));
+            httpPost.setHeader("X-Application", System.getenv("APP_KEY"));
 
             System.out.println("executing request" + httpPost.getRequestLine());
 
