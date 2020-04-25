@@ -68,7 +68,7 @@ public class BetService {
         }
 
         System.out.println(message.toString());
-        sendEmailSMTP.sendMessage(message.toString(), "Bets have been placed");
+//        sendEmailSMTP.sendMessage(message.toString(), "Bets have been placed");
 
         return message.toString();
     }
@@ -91,7 +91,7 @@ public class BetService {
             }
         }
         System.out.println(message.toString());
-        sendEmailSMTP.sendMessage(message.toString(), "Results");
+//        sendEmailSMTP.sendMessage(message.toString(), "Results");
         return message.toString();
     }
 
