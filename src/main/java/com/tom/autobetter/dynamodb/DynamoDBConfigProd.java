@@ -10,12 +10,14 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static com.tom.autobetter.util.CommonConstants.*;
+
 @Configuration
 public class DynamoDBConfigProd {
 
     @Bean
     public AWSCredentials amazonAWSCredentials() {
-        return new BasicAWSCredentials(System.getenv("ACCESS_KEY"), System.getenv("SECRET_KEY"));
+        return new BasicAWSCredentials((ACCESS_KEY.equals("") ? System.getenv("ACCESS_KEY") : ACCESS_KEY), (SECRET_KEY.equals("") ? System.getenv("SECRET_KEY") : SECRET_KEY));
     }
     @Bean
     public AmazonDynamoDB amazonDynamoDB() {

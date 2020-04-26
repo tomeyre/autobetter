@@ -1,9 +1,12 @@
 package com.tom.autobetter.util;
 
 import com.tom.autobetter.data.RaceDayDate;
+import com.tom.autobetter.data.Winner;
 import com.tom.autobetter.entity.sporting_life.Horse;
 import com.tom.autobetter.entity.sporting_life.JockeyTrainerResult;
+import com.tom.autobetter.entity.sporting_life.Result;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,8 +19,30 @@ public class CalculationUtil {
                 .stream()
                 .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && (result.getPosition() != null && result.getPosition() == 1))
                 .collect(Collectors.toList())
-                .size() * 2;
+                .size();
     }
+
+    public Double didTheHorseWinItsLastRace(Horse horse) {
+        List<Result> results =  horse.getHorseDetails().getPreviousResults()
+                .stream()
+                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null)
+                .collect(Collectors.toList());
+
+        if (!results.isEmpty() && results.size() > 0) {
+            results.sort(horseComparitor);
+            if (results.get(0).getPosition() == 1) {
+                return 1d;
+            }
+        }
+        return 0d;
+    }
+
+    Comparator<Result> horseComparitor = new Comparator<Result>() {
+        @Override
+        public int compare(Result e1, Result e2) {
+            return new Long(e2.getDate().getTimeInMillis()).compareTo(new Long(e1.getDate().getTimeInMillis()));
+        }
+    };
 
     public Integer hasTheHorseFinishedSecondInTheirLastRaces(Horse horse) {
         return horse.getHorseDetails().getPreviousResults()
@@ -37,11 +62,11 @@ public class CalculationUtil {
                 .filter(jockeyTrainerResult -> !raceDayDate.todayOrFutureDate(jockeyTrainerResult.getResult().getDate()) && jockeyTrainerResult.getResult().getPosition() != null)
                 .collect(Collectors.toList());
         try {
-            return ((100.0 / results.size()) * results
+            return (1.0 / results.size()) * results
                     .stream()
                     .filter(jockeyTrainerResult -> jockeyTrainerResult.getResult().getPosition() == 1)
                     .collect(Collectors.toList())
-                    .size()) / 10.0;
+                    .size();
         }catch (Exception e){
             e.printStackTrace();
             return 0.0;
@@ -57,11 +82,11 @@ public class CalculationUtil {
                 .filter(jockeyTrainerResult -> !raceDayDate.todayOrFutureDate(jockeyTrainerResult.getResult().getDate()) && jockeyTrainerResult.getResult().getPosition() != null)
                 .collect(Collectors.toList());
         try {
-            return ((100.0 / results.size()) * results
+            return (100.0 / results.size()) * results
                     .stream()
                     .filter(jockeyTrainerResult -> jockeyTrainerResult.getResult().getPosition() == 1)
                     .collect(Collectors.toList())
-                    .size()) / 10.0;
+                    .size();
         }catch (Exception e){
             e.printStackTrace();
             return 0.0;
@@ -80,7 +105,7 @@ public class CalculationUtil {
                                 jockeyTrainerResult.getResult().getPosition() != null &&
                                 jockeyTrainerResult.getResult().getPosition() == 1)
                 .collect(Collectors.toList())
-                .size() * 3;
+                .size();
 
     }
 

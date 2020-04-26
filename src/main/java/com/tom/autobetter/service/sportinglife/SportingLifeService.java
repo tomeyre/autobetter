@@ -144,6 +144,17 @@ public class SportingLifeService {
             rankings.add(temp);
         }
         rankings.sort(horseComparitor);
+        int count = 1;
+        Double score = 0d;
+        for (Winner winner : rankings){
+            if(score == 0){
+                score = winner.getScore();
+            }
+            else if(score == winner.getScore()){
+                count++;
+            }
+        }
+        System.out.println("potential winners for race : " + count);
         System.out.println(rankings.get(0).getFinishPosition());
         rankings.get(0).setCorrect(rankings.get(0).getFinishPosition() == 1);
         return rankings.get(0);
@@ -167,12 +178,13 @@ public class SportingLifeService {
 
     private Double calculateChanceOfWinning(Horse horse, Integer raceClass){
         Double score = 0.0;
-//        System.out.println("-----------------------------------");
+        System.out.println("-----------------------------------");
         score += calculationUtil.hasTheHorseWonAnyOfTheirLastRaces(horse).doubleValue();
         score += calculationUtil.hasTheHorseFinishedSecondInTheirLastRaces(horse).doubleValue();
-//        score += calculationUtil.doesTheJockeyOftenWin(horse);
-//        score += calculationUtil.doesTheTrainerTrainWinningHorses(horse);
+        score += calculationUtil.doesTheJockeyOftenWin(horse);
+        score += calculationUtil.doesTheTrainerTrainWinningHorses(horse);
         score += calculationUtil.hasThisJockeyWonWithThisHorseBefore(horse).doubleValue();
+        score += calculationUtil.didTheHorseWinItsLastRace(horse);
 //        score += calculationUtil.hasTheHorseRacedInThisClassBeforeAndWon(horse, raceClass).doubleValue();
 //        score += calculationUtil.hasTheHorseRacedWithThisWeightBeforeAndWon(horse);
 //        score += calculationUtil.isTheHorseReliable(horse);
@@ -183,7 +195,7 @@ public class SportingLifeService {
 //        score += calculationUtil.hasTheHorseMovedClass(horse);
 //        score += calculationUtil.horseRatingBonus(horse);
 //        score += calculationUtil.horseOdds(horse);
-//        System.out.println(horse.getHorseDetails().getName() + " Overall score " + score + "-----------------------------------");
+        System.out.println(horse.getHorseDetails().getName() + " Overall score " + score + "-----------------------------------");
         return score;
     }
 }

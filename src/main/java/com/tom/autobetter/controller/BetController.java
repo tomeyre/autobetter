@@ -2,6 +2,7 @@ package com.tom.autobetter.controller;
 
 import com.tom.autobetter.data.RaceDayDate;
 import com.tom.autobetter.service.BetService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,11 @@ public class BetController {
     BetService betService;
 
     private RaceDayDate raceDayDate = RaceDayDate.getInstance();
+
+    @GetMapping(value = "/wakeUp", produces = "application/json")
+    public String placeBets(){
+        return "alright fucker im awake!!!";
+    }
 
     @GetMapping(value = "/placeBets/{0}", produces = "application/json")
     public String placeBets(@PathVariable("0") final String date){

@@ -41,7 +41,7 @@ public class HttpUtil {
             post.setHeader(HTTP_HEADER_CONTENT_TYPE, APPLICATION_JSON);
             post.setHeader(HTTP_HEADER_ACCEPT, APPLICATION_JSON);
             post.setHeader(HTTP_HEADER_ACCEPT_CHARSET, ENCODING_UTF8);
-            post.setHeader(HTTP_HEADER_X_APPLICATION, System.getenv("APP_KEY"));
+            post.setHeader(HTTP_HEADER_X_APPLICATION, APP_KEY.equals("") ? System.getenv("APP_KEY") : APP_KEY);
             post.setHeader(HTTP_HEADER_X_AUTHENTICATION, sessionToken.getSsoId());
 
             post.setEntity(new StringEntity(jsonRequest, ENCODING_UTF8));
@@ -51,7 +51,7 @@ public class HttpUtil {
             System.out.println(URL);
             System.out.println(reqHandler);
             System.out.println(post.toString());
-            System.out.println(System.getenv("APP_KEY"));
+            System.out.println(APP_KEY.equals("") ? System.getenv("APP_KEY") : APP_KEY);
             System.out.println(sessionToken.getSsoId());
 
             HttpClient httpClient = new DefaultHttpClient();

@@ -32,6 +32,8 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.tom.autobetter.util.CommonConstants.APP_KEY;
+
 public class HttpUtil {
 
     static String json = "";
@@ -106,7 +108,7 @@ public class HttpUtil {
 
             httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 
-            httpPost.setHeader("X-Application", System.getenv("APP_KEY"));
+            httpPost.setHeader("X-Application", APP_KEY.equals("") ? System.getenv("APP_KEY") : APP_KEY);
 
             System.out.println("executing request" + httpPost.getRequestLine());
 

@@ -16,5 +16,11 @@ public class CommonConstants {
     public static final Double BET_SIZE = 0.01;
     public static final Integer BET_PRICE = 1000;
 
+    public static final String ACCESS_KEY="";
+    public static final String SECRET_KEY="";
+    public static final String APP_KEY="";
+    public static final String PASS_TWO="";
+    public static final String PASS_ONE="";
+
     public static final Boolean DEBUG = false;
 }

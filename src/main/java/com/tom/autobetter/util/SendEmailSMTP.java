@@ -7,6 +7,8 @@ import javax.mail.internet.*;
 import java.text.MessageFormat;
 import java.util.Properties;
 
+import static com.tom.autobetter.util.CommonConstants.PASS_ONE;
+
 @Component
 public class SendEmailSMTP {
 
@@ -25,7 +27,7 @@ public class SendEmailSMTP {
         Session session = Session.getInstance(prop, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("tom.eyre8770@gmail.com", System.getenv("PASS_ONE"));
+                return new PasswordAuthentication("tom.eyre8770@gmail.com", PASS_ONE.equals("") ? System.getenv("PASS_ONE") :  PASS_ONE);
             }
         });
 
