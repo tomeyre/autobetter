@@ -181,8 +181,6 @@ public class SportingLifeService {
         System.out.println("-----------------------------------");
         score += calculationUtil.hasTheHorseWonAnyOfTheirLastRaces(horse).doubleValue();
         score += calculationUtil.hasTheHorseFinishedSecondInTheirLastRaces(horse).doubleValue();
-        score += calculationUtil.doesTheJockeyOftenWin(horse);
-        score += calculationUtil.doesTheTrainerTrainWinningHorses(horse);
         score += calculationUtil.hasThisJockeyWonWithThisHorseBefore(horse).doubleValue();
         score += calculationUtil.didTheHorseWinItsLastRace(horse);
 //        score += calculationUtil.hasTheHorseRacedInThisClassBeforeAndWon(horse, raceClass).doubleValue();
@@ -195,6 +193,10 @@ public class SportingLifeService {
 //        score += calculationUtil.hasTheHorseMovedClass(horse);
 //        score += calculationUtil.horseRatingBonus(horse);
 //        score += calculationUtil.horseOdds(horse);
+        if(score == 0){
+        score += calculationUtil.doesTheJockeyOftenWin(horse);
+//        score += calculationUtil.doesTheTrainerTrainWinningHorses(horse);
+        }
         System.out.println(horse.getHorseDetails().getName() + " Overall score " + score + "-----------------------------------");
         return score;
     }
