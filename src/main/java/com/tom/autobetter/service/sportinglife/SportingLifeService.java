@@ -195,6 +195,7 @@ public class SportingLifeService {
 //        score += calculationUtil.horseOdds(horse);
         if(score == 0){
         score += calculationUtil.doesTheJockeyOftenWin(horse);
+        score += calculationUtil.horseOdds(horse);
 //        score += calculationUtil.doesTheTrainerTrainWinningHorses(horse);
         }
         System.out.println(horse.getHorseDetails().getName() + " Overall score " + score + "-----------------------------------");

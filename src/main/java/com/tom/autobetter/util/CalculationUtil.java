@@ -133,7 +133,7 @@ public class CalculationUtil {
         if(Character.isDigit(horse.getBetting().getCurrentOdds().charAt(0))) {
             int a = Integer.parseInt(horse.getBetting().getCurrentOdds().split("/")[0]);
             int b = Integer.parseInt(horse.getBetting().getCurrentOdds().split("/")[1]);
-            return (b / a) * 10.0;
+            return (b / a) * 1d;
         }
         return 0.0;
     }
