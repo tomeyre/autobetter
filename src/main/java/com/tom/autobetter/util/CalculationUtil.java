@@ -37,13 +37,6 @@ public class CalculationUtil {
         return 0d;
     }
 
-    Comparator<Result> horseComparitor = new Comparator<Result>() {
-        @Override
-        public int compare(Result e1, Result e2) {
-            return new Long(e2.getDate().getTimeInMillis()).compareTo(new Long(e1.getDate().getTimeInMillis()));
-        }
-    };
-
     public Integer hasTheHorseFinishedSecondInTheirLastRaces(Horse horse) {
         return horse.getHorseDetails().getPreviousResults()
                 .stream()
@@ -119,6 +112,41 @@ public class CalculationUtil {
                 .size();
     }
 
+    public Double hasTheHorseMovedClass(Horse horse, Integer currentRaceClass){
+        List<Result> results =  horse.getHorseDetails().getPreviousResults()
+                .stream()
+                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getRaceClass() != null)
+                .collect(Collectors.toList());
+
+        if (!results.isEmpty() && results.size() > 0) {
+            results.sort(horseComparitor);
+            if (currentRaceClass != null &&
+                    results.get(0).getRaceClass() != null &&
+                    results.get(0).getRaceClass() > currentRaceClass) {
+                return 1d;
+            }
+        }
+        return 0d;
+    }
+
+    public Double checkResultsPercentage(Horse horse, Integer howManyResultsToCheck){
+        int count = 0;
+        Double response = 0d;
+        for(Result result : horse.getHorseDetails().getPreviousResults()){
+            if(!raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null && result.getPosition() > 0){
+                response += (100 / result.getRunnerCount()) * result.getPosition();
+                count++;
+            }
+            if(count == howManyResultsToCheck){
+                break;
+            }
+        }
+        if(response == 0){
+            return 0d;
+        }
+        return (100d - (response / count)) / 100;
+    }
+
 
     //
     //hasTheHorseRacedWithThisWeightBeforeAndWon
@@ -144,4 +172,11 @@ public class CalculationUtil {
         }
         return 0;
     }
+
+    Comparator<Result> horseComparitor = new Comparator<Result>() {
+        @Override
+        public int compare(Result e1, Result e2) {
+            return new Long(e2.getDate().getTimeInMillis()).compareTo(new Long(e1.getDate().getTimeInMillis()));
+        }
+    };
 }

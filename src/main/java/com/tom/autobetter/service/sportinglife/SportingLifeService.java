@@ -179,25 +179,22 @@ public class SportingLifeService {
     private Double calculateChanceOfWinning(Horse horse, Integer raceClass){
         Double score = 0.0;
         System.out.println("-----------------------------------");
-        score += calculationUtil.hasTheHorseWonAnyOfTheirLastRaces(horse).doubleValue();
-        score += calculationUtil.hasTheHorseFinishedSecondInTheirLastRaces(horse).doubleValue();
-        score += calculationUtil.hasThisJockeyWonWithThisHorseBefore(horse).doubleValue();
-        score += calculationUtil.didTheHorseWinItsLastRace(horse);
-//        score += calculationUtil.hasTheHorseRacedInThisClassBeforeAndWon(horse, raceClass).doubleValue();
-//        score += calculationUtil.hasTheHorseRacedWithThisWeightBeforeAndWon(horse);
-//        score += calculationUtil.isTheHorseReliable(horse);
-//        score += calculationUtil.isTheJockeyReliable(horse);
-//        score += calculationUtil.isTheHorseComfortableAtThisDistance(horse);
-//        score += calculationUtil.doesTheHorseFavourThisGround(horse);
-//        score += calculationUtil.hasTheLast6RacesBeenRecent(horse);
-//        score += calculationUtil.hasTheHorseMovedClass(horse);
-//        score += calculationUtil.horseRatingBonus(horse);
-//        score += calculationUtil.horseOdds(horse);
-        if(score == 0){
-        score += calculationUtil.doesTheJockeyOftenWin(horse);
-        score += calculationUtil.horseOdds(horse);
-//        score += calculationUtil.doesTheTrainerTrainWinningHorses(horse);
-        }
+//        score += calculationUtil.hasTheHorseWonAnyOfTheirLastRaces(horse).doubleValue();
+//        score += calculationUtil.hasTheHorseFinishedSecondInTheirLastRaces(horse).doubleValue();
+//        score += calculationUtil.hasThisJockeyWonWithThisHorseBefore(horse).doubleValue();
+//        score += calculationUtil.didTheHorseWinItsLastRace(horse);
+//        System.out.println("percentage = " + calculationUtil.checkResultsPercentage(horse, 6));
+        score += calculationUtil.checkResultsPercentage(horse, 6);
+//        System.out.println("percentage = " + calculationUtil.checkResultsPercentage(horse, 100));
+//        score += calculationUtil.checkResultsPercentage(horse, 100);
+
+//        if(score == 0) {
+//            score += calculationUtil.doesTheJockeyOftenWin(horse);
+//            score += calculationUtil.horseOdds(horse);
+//            score /= 2d;
+//        }
+//
+        score += calculationUtil.hasTheHorseMovedClass(horse, raceClass);
         System.out.println(horse.getHorseDetails().getName() + " Overall score " + score + "-----------------------------------");
         return score;
     }
