@@ -32,7 +32,7 @@ import static com.tom.autobetter.enums.BetType.*;
 @Service
 public class BetService {
 
-    public static final String COUNTRY = "United States";
+    public static final String COUNTRY = "United States";//"England";
     private static final String RACE_URL = "https://www.sportinglife.com/api/horse-racing/race/";
 
     @Autowired

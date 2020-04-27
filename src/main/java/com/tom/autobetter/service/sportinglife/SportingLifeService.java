@@ -83,10 +83,10 @@ public class SportingLifeService {
                             System.out.println(HORSE_URL + horse.getHorseDetails().getHorseReference().getId());
                             horse.getHorseDetails().setPreviousResults(mapper.readValue(new JSONObject(httpUtil.getJSONFromUrl(HORSE_URL + horse.getHorseDetails().getHorseReference().getId())).getJSONArray("previous_results").toString(), new TypeReference<List<Result>>() {}));
                         }
-                        System.out.println(JOCKEY_URL + horse.getJockey().getJockeyReference().getId());
-                        if(horse.getJockey() != null && horse.getJockey().getJockeyReference() != null) {
-                            horse.setJockey(mapper.readValue(httpUtil.getJSONFromUrl(JOCKEY_URL + horse.getJockey().getJockeyReference().getId()), new TypeReference<Jockey>() {}));
-                        }
+//                        if(horse.getJockey() != null && horse.getJockey().getJockeyReference() != null) {
+//                            System.out.println(JOCKEY_URL + horse.getJockey().getJockeyReference().getId());
+//                            horse.setJockey(mapper.readValue(httpUtil.getJSONFromUrl(JOCKEY_URL + horse.getJockey().getJockeyReference().getId()), new TypeReference<Jockey>() {}));
+//                        }
 //                        System.out.println(TRAINER_URL + horse.getTrainer().getTrainerReference().getId());
 //                        horse.setTrainer(mapper.readValue(httpUtil.getJSONFromUrl(TRAINER_URL + horse.getTrainer().getTrainerReference().getId()), new TypeReference<Trainer>() {}));
                     }
@@ -181,7 +181,7 @@ public class SportingLifeService {
         System.out.println("-----------------------------------");
 //        score += calculationUtil.hasTheHorseWonAnyOfTheirLastRaces(horse).doubleValue();
 //        score += calculationUtil.hasTheHorseFinishedSecondInTheirLastRaces(horse).doubleValue();
-//        score += calculationUtil.hasThisJockeyWonWithThisHorseBefore(horse).doubleValue();
+        score += calculationUtil.hasThisJockeyWonWithThisHorseBefore(horse).doubleValue();
 //        score += calculationUtil.didTheHorseWinItsLastRace(horse);
 //        System.out.println("percentage = " + calculationUtil.checkResultsPercentage(horse, 6));
         score += calculationUtil.checkResultsPercentage(horse, 6);
