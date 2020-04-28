@@ -12,6 +12,15 @@ public class Race {
     private Double odds;
     private Long betId;
     private String raceTime;
+    private Boolean clearWinner;
+
+    public Boolean getClearWinner() {
+        return clearWinner;
+    }
+
+    public void setClearWinner(Boolean clearWinner) {
+        this.clearWinner = clearWinner;
+    }
 
     public String getWinner() {
         return winner;

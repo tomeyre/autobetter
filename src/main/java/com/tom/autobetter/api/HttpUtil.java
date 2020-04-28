@@ -46,13 +46,13 @@ public class HttpUtil {
 
             post.setEntity(new StringEntity(jsonRequest, ENCODING_UTF8));
 
-            System.out.println(param);
-            System.out.println(operation);
-            System.out.println(URL);
-            System.out.println(reqHandler);
-            System.out.println(post.toString());
-            System.out.println(APP_KEY.equals("") ? System.getenv("APP_KEY") : APP_KEY);
-            System.out.println(sessionToken.getSsoId());
+//            System.out.println(param);
+//            System.out.println(operation);
+//            System.out.println(URL);
+//            System.out.println(reqHandler);
+//            System.out.println(post.toString());
+//            System.out.println(APP_KEY.equals("") ? System.getenv("APP_KEY") : APP_KEY);
+//            System.out.println(sessionToken.getSsoId());
 
             HttpClient httpClient = new DefaultHttpClient();
 

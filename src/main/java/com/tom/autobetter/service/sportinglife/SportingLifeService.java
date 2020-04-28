@@ -11,10 +11,8 @@ import com.tom.autobetter.entity.dynamodb.Race;
 import com.tom.autobetter.entity.dynamodb.RaceDayEntity;
 import com.tom.autobetter.entity.sporting_life.*;
 import com.tom.autobetter.repository.dynamodb.AutobetterRepository;
-import com.tom.autobetter.service.betfair.BetfairService;
 import com.tom.autobetter.util.CalculationUtil;
 import com.tom.autobetter.util.HttpUtil;
-import jdk.nashorn.internal.scripts.JO;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -83,10 +81,10 @@ public class SportingLifeService {
                             System.out.println(HORSE_URL + horse.getHorseDetails().getHorseReference().getId());
                             horse.getHorseDetails().setPreviousResults(mapper.readValue(new JSONObject(httpUtil.getJSONFromUrl(HORSE_URL + horse.getHorseDetails().getHorseReference().getId())).getJSONArray("previous_results").toString(), new TypeReference<List<Result>>() {}));
                         }
-//                        if(horse.getJockey() != null && horse.getJockey().getJockeyReference() != null) {
-//                            System.out.println(JOCKEY_URL + horse.getJockey().getJockeyReference().getId());
-//                            horse.setJockey(mapper.readValue(httpUtil.getJSONFromUrl(JOCKEY_URL + horse.getJockey().getJockeyReference().getId()), new TypeReference<Jockey>() {}));
-//                        }
+                        if(horse.getJockey() != null && horse.getJockey().getJockeyReference() != null) {
+                            System.out.println(JOCKEY_URL + horse.getJockey().getJockeyReference().getId());
+                            horse.setJockey(mapper.readValue(httpUtil.getJSONFromUrl(JOCKEY_URL + horse.getJockey().getJockeyReference().getId()), new TypeReference<Jockey>() {}));
+                        }
 //                        System.out.println(TRAINER_URL + horse.getTrainer().getTrainerReference().getId());
 //                        horse.setTrainer(mapper.readValue(httpUtil.getJSONFromUrl(TRAINER_URL + horse.getTrainer().getTrainerReference().getId()), new TypeReference<Trainer>() {}));
                     }
@@ -115,6 +113,7 @@ public class SportingLifeService {
         raceEntity.setRaceId(race.getRaceSummaryReference().getId());
         raceEntity.setBetId(1l);
         raceEntity.setRaceTime(race.getTime());
+        raceEntity.setClearWinner(winner.getClearWinner());
         return raceEntity;
     }
 
@@ -154,9 +153,9 @@ public class SportingLifeService {
                 count++;
             }
         }
-        System.out.println("potential winners for race : " + count);
-        System.out.println(rankings.get(0).getFinishPosition());
-        rankings.get(0).setCorrect(rankings.get(0).getFinishPosition() == 1);
+//        System.out.println("potential winners for race : " + count);
+//        System.out.println(rankings.get(0).getFinishPosition());
+        rankings.get(0).setClearWinner(rankings.get(0).getScore() - rankings.get(1).getScore() > 0.5);
         return rankings.get(0);
     }
 
@@ -178,23 +177,22 @@ public class SportingLifeService {
 
     private Double calculateChanceOfWinning(Horse horse, Integer raceClass){
         Double score = 0.0;
-        System.out.println("-----------------------------------");
+//        System.out.println("-----------------------------------");
 //        score += calculationUtil.hasTheHorseWonAnyOfTheirLastRaces(horse).doubleValue();
 //        score += calculationUtil.hasTheHorseFinishedSecondInTheirLastRaces(horse).doubleValue();
-        score += calculationUtil.hasThisJockeyWonWithThisHorseBefore(horse).doubleValue();
+        score += calculationUtil.hasThisJockeyWonWithThisHorseBeforeRecently(horse, 6).doubleValue();
 //        score += calculationUtil.didTheHorseWinItsLastRace(horse);
-//        System.out.println("percentage = " + calculationUtil.checkResultsPercentage(horse, 6));
-        score += calculationUtil.checkResultsPercentage(horse, 6);
-//        System.out.println("percentage = " + calculationUtil.checkResultsPercentage(horse, 100));
-//        score += calculationUtil.checkResultsPercentage(horse, 100);
-
-//        if(score == 0) {
-//            score += calculationUtil.doesTheJockeyOftenWin(horse);
+        score += calculationUtil.checkHorseRecentPerformance(horse, 6);
+        score += calculationUtil.hasTheHorseRanRecently(horse, 6);
+        if(score == 0) {
+            score += calculationUtil.checkJockeyRecentPerformance(horse, 6);
+//            score += calculationUtil.horseRatingBonus(horse);
 //            score += calculationUtil.horseOdds(horse);
-//            score /= 2d;
-//        }
-//
-        score += calculationUtil.hasTheHorseMovedClass(horse, raceClass);
+//            score /= 3d;
+
+        }
+
+//        score += calculationUtil.hasTheHorseMovedClass(horse, raceClass);
         System.out.println(horse.getHorseDetails().getName() + " Overall score " + score + "-----------------------------------");
         return score;
     }

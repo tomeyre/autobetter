@@ -110,17 +110,17 @@ public class HttpUtil {
 
             httpPost.setHeader("X-Application", APP_KEY.equals("") ? System.getenv("APP_KEY") : APP_KEY);
 
-            System.out.println("executing request" + httpPost.getRequestLine());
+//            System.out.println("executing request" + httpPost.getRequestLine());
 
             HttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
 
-            System.out.println("----------------------------------------");
-            System.out.println(response.getStatusLine());
+//            System.out.println("----------------------------------------");
+//            System.out.println(response.getStatusLine());
             if (entity != null) {
                 String responseString = EntityUtils.toString(entity);
                 //extract the session token from responsestring
-                System.out.println("responseString" + responseString);
+//                System.out.println("responseString" + responseString);
                 return new JSONObject(responseString).getString("sessionToken");
             }
 

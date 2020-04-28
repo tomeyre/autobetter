@@ -1,5 +1,6 @@
 package com.tom.autobetter.data;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
@@ -38,6 +39,17 @@ public final class RaceDayDate {
         if(resultDate.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) &&
                 resultDate.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) &&
                 resultDate.get(Calendar.DAY_OF_MONTH) >= calendar.get(Calendar.DAY_OF_MONTH)){
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean isDateWithing6MonthsOfRaceDate(Calendar resultDate){
+        Calendar sixMonthsAgo = Calendar.getInstance();
+        sixMonthsAgo.setTimeInMillis(calendar.getTimeInMillis());
+        sixMonthsAgo.set(Calendar.MONTH, -6);
+        Long diff = calendar.getTimeInMillis() - sixMonthsAgo.getTimeInMillis();
+        if(diff / 1000*60*60*24 > 1000*60*60*24 + (31*3) && diff > 0){
             return true;
         }
         return false;

@@ -44,7 +44,7 @@ public class ApiNgJsonRpcOperations extends ApiNgOperations {
         params.put(LOCALE, locale);
         String result = getInstance().makeRequest(ApiNgOperation.LISTEVENTTYPES.getOperationName(), params, SPORTS_APING_V1_0, BETTING);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nResponse: "+result);
+//            System.out.println("\nResponse: "+result);
 
         EventTypeResultContainer container = JsonConverter.convertFromJson(result, EventTypeResultContainer.class);
         if(container.getError() != null)
@@ -65,7 +65,7 @@ public class ApiNgJsonRpcOperations extends ApiNgOperations {
         params.put("currencyCode", currencyCode);
         String result = getInstance().makeRequest(ApiNgOperation.LISTMARKETBOOK.getOperationName(), params, SPORTS_APING_V1_0, BETTING);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nResponse: "+result);
+//            System.out.println("\nResponse: "+result);
 
         ListMarketBooksContainer container = JsonConverter.convertFromJson(result, ListMarketBooksContainer.class);
 
@@ -87,7 +87,7 @@ public class ApiNgJsonRpcOperations extends ApiNgOperations {
         params.put(MARKET_PROJECTION, marketProjection);
         String result = getInstance().makeRequest(ApiNgOperation.LISTMARKETCATALOGUE.getOperationName(), params, SPORTS_APING_V1_0, BETTING);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nResponse: "+result);
+//            System.out.println("\nResponse: "+result);
 
         ListMarketCatalogueContainer container = JsonConverter.convertFromJson(result, ListMarketCatalogueContainer.class);
 
@@ -106,7 +106,7 @@ public class ApiNgJsonRpcOperations extends ApiNgOperations {
         params.put(CUSTOMER_REF, customerRef);
         String result = getInstance().makeRequest(ApiNgOperation.PLACORDERS.getOperationName(), params, SPORTS_APING_V1_0, BETTING);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nResponse: "+result);
+//            System.out.println("\nResponse: "+result);
 
         PlaceOrdersContainer container = JsonConverter.convertFromJson(result, PlaceOrdersContainer.class);
 
@@ -124,7 +124,7 @@ public class ApiNgJsonRpcOperations extends ApiNgOperations {
         params.put(WALLET, "UK");
         String result = getInstance().makeRequest(ApiNgOperation.GETACCOUNTFUNDS.getOperationName(), params, ACCOUNT_APING_V1_0, ACCOUNT);
 //        if(ApiNGDemo.isDebug())
-        System.out.println("\nResponse: "+result);
+//        System.out.println("\nResponse: "+result);
 
         return new JSONObject(result).getJSONObject("result").getDouble("availableToBetBalance");
     }
@@ -139,7 +139,7 @@ public class ApiNgJsonRpcOperations extends ApiNgOperations {
 
         requestString =  JsonConverter.convertToJson(request);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nRequest: "+requestString);
+//            System.out.println("\nRequest: "+requestString);
 
         //We need to pass the "sendPostRequest" method a string in util format:  requestString
         HttpUtil requester = new HttpUtil();

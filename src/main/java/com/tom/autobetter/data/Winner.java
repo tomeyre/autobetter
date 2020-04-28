@@ -7,6 +7,15 @@ public class Winner {
     private Double score;
     private Integer finishPosition;
     private Boolean correct;
+    private Boolean clearWinner;
+
+    public Boolean getClearWinner() {
+        return clearWinner;
+    }
+
+    public void setClearWinner(Boolean clearWinner) {
+        this.clearWinner = clearWinner;
+    }
 
     public Integer getFinishPosition() {
         return finishPosition;

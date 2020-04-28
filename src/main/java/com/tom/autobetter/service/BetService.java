@@ -62,7 +62,7 @@ public class BetService {
             for (int i = 0; i < raceDayEntity.getEvents().size(); i++) {
                 message.append(MessageFormat.format("\r\n{0}, {1} races\r\n\r\n", raceDayEntity.getEvents().get(i).getEventName(), raceDayEntity.getEvents().get(i).getRaces().size()));
                 for (Race race : raceDayEntity.getEvents().get(i).getRaces()) {
-                    message.append(MessageFormat.format("Race {0} my guess {1}\r\n", race.getRaceTime(), race.getHorseName()));
+                    message.append(MessageFormat.format("Race {0} my guess {1} {2}\r\n", race.getRaceTime(), race.getHorseName(), race.getClearWinner() ? "CLEAR WINNER" : ""));
                 }
             }
         }
@@ -163,6 +163,7 @@ public class BetService {
             for (Event event : raceDayEntity.getEvents()){
                 WinPercentage winPercentage = new WinPercentage();
                 winPercentage.setRace(event.getEventName());
+                winPercentage.setWins(0);
                 for(Race race : event.getRaces()) {
                     for (Meet meet : raceDay) {
                         if(meet.getMeetingSummary().getMeetingReference().getId().equals(event.getEventId())) {
@@ -171,18 +172,18 @@ public class BetService {
                                     for (Horse horse : raceSummary.getRaceDetails().getHorses()) {
                                         if(horse.getFinishingPosition() == 1){
                                             race.setWinner(horse.getHorseDetails().getName());
-                                            System.out.println("race winner = " + horse.getHorseDetails().getName() + " :: " + horse.getFinishingPosition());
+//                                            System.out.println("race winner = " + horse.getHorseDetails().getName() + " :: " + horse.getFinishingPosition());
                                         }
                                         if (horse.getHorseDetails().getName().equalsIgnoreCase(race.getHorseName()) && horse.getFinishingPosition() == 1) {
                                             race.setCorrect(true);
                                             int temp = winPercentage.getWins() == null ? 0 : winPercentage.getWins();
                                             temp++;
                                             winPercentage.setWins(temp);
-                                            System.out.println("Correct winner my guess = " + race.getHorseName() + " :: " + horse.getHorseDetails().getName() + " :: " + horse.getFinishingPosition());
+//                                            System.out.println("Correct winner my guess = " + race.getHorseName() + " :: " + horse.getHorseDetails().getName() + " :: " + horse.getFinishingPosition());
                                         }
                                         if (horse.getHorseDetails().getName().equalsIgnoreCase(race.getHorseName()) && horse.getFinishingPosition() != 1) {
                                             race.setCorrect(false);
-                                            System.out.println("incorrect winner my guess = " + race.getHorseName() + " :: " + horse.getHorseDetails().getName() + " :: " + horse.getFinishingPosition());
+//                                            System.out.println("incorrect winner my guess = " + race.getHorseName() + " :: " + horse.getHorseDetails().getName() + " :: " + horse.getFinishingPosition());
                                         }
                                     }
                                 }

@@ -18,8 +18,8 @@ public class RescriptResponseHandler implements ResponseHandler<String> {
         if (statusLine.getStatusCode() != 200) {
 
             String s = entity == null ? null : EntityUtils.toString(entity, ENCODING_UTF_8);
-            System.out.println("Call to api-ng failed\n");
-            System.out.println(s);
+//            System.out.println("Call to api-ng failed\n");
+//            System.out.println(s);
             System.exit(0);
 
         }

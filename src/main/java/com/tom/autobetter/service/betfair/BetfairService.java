@@ -50,11 +50,11 @@ public class BetfairService {
                 if(eventTypeResult.getEventType().getName().equals("Horse Racing")){
                     eventTypeIds.add(eventTypeResult.getEventType().getId());
                     maxResults = eventTypeResult.getMarketCount();
-                    System.out.println(eventTypeResult.getEventType() + " " + eventTypeResult.getMarketCount());
+//                    System.out.println(eventTypeResult.getEventType() + " " + eventTypeResult.getMarketCount());
                 }
             }
 
-            System.out.println("4.(listMarketCataloque) Get next horse racing market in the UK...\n");
+//            System.out.println("4.(listMarketCataloque) Get next horse racing market in the UK...\n");
             TimeRange time = new TimeRange();
             Date from = new Date();
             calendar.set(Calendar.HOUR_OF_DAY,0);

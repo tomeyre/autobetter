@@ -35,7 +35,7 @@ public class ApiNgRescriptOperations extends ApiNgOperations {
         params.put(LOCALE, locale);
         String result = getInstance().makeRequest(ApiNgOperation.LISTEVENTTYPES.getOperationName(), params,null, BETTING);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nResponse: "+result);
+//            System.out.println("\nResponse: "+result);
 
         List<EventTypeResult> container = JsonConverter.convertFromJson(result, new TypeToken<List<EventTypeResult>>() {}.getType());
 
@@ -53,7 +53,7 @@ public class ApiNgRescriptOperations extends ApiNgOperations {
         params.put(MATCH_PROJECTION, matchProjection);
         String result = getInstance().makeRequest(ApiNgOperation.LISTMARKETBOOK.getOperationName(), params,null, BETTING);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nResponse: "+result);
+//            System.out.println("\nResponse: "+result);
 
         List<MarketBook> container = JsonConverter.convertFromJson(result, new TypeToken<List<MarketBook>>(){}.getType() );
 
@@ -71,7 +71,7 @@ public class ApiNgRescriptOperations extends ApiNgOperations {
         params.put(MARKET_PROJECTION, marketProjection);
         String result = getInstance().makeRequest(ApiNgOperation.LISTMARKETCATALOGUE.getOperationName(), params,null, BETTING);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nResponse: "+result);
+//            System.out.println("\nResponse: "+result);
 
         List<MarketCatalogue> container = JsonConverter.convertFromJson(result, new TypeToken< List<MarketCatalogue>>(){}.getType() );
 
@@ -87,7 +87,7 @@ public class ApiNgRescriptOperations extends ApiNgOperations {
         params.put(CUSTOMER_REF, customerRef);
         String result = getInstance().makeRequest(ApiNgOperation.PLACORDERS.getOperationName(), params,null, BETTING);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nResponse: "+result);
+//            System.out.println("\nResponse: "+result);
 
         return JsonConverter.convertFromJson(result, PlaceExecutionReport.class);
 
@@ -106,7 +106,7 @@ public class ApiNgRescriptOperations extends ApiNgOperations {
 
         requestString =  JsonConverter.convertToJson(params);
 //        if(ApiNGDemo.isDebug())
-            System.out.println("\nRequest: "+requestString);
+//            System.out.println("\nRequest: "+requestString);
 
         //We need to pass the "sendPostRequest" method a string in util format:  requestString
         HttpUtil requester = new HttpUtil();
