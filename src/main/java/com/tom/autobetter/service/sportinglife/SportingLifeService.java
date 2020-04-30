@@ -39,12 +39,13 @@ public class SportingLifeService {
     private HttpUtil httpUtil = new HttpUtil();
     private ObjectMapper mapper = new ObjectMapper();
 
-    public List<Meet> getTheDaysRaces(){
+    public List<Meet> getTheDaysRaces() {
 
-        System.out.println(RACE_DAY_URL + raceDayDate.getYear()+ "-" + (raceDayDate.getMonth() + 1) + "-" + raceDayDate.getDayOfMonth());
-        String json = httpUtil.getJSONFromUrl(RACE_DAY_URL + raceDayDate.getYear()+ "-" + (raceDayDate.getMonth() + 1) + "-" + raceDayDate.getDayOfMonth());
+        System.out.println(RACE_DAY_URL + raceDayDate.getYear() + "-" + (raceDayDate.getMonth() + 1) + "-" + raceDayDate.getDayOfMonth());
+        String json = httpUtil.getJSONFromUrl(RACE_DAY_URL + raceDayDate.getYear() + "-" + (raceDayDate.getMonth() + 1) + "-" + raceDayDate.getDayOfMonth());
         try {
-            return mapper.readValue(json, new TypeReference<List<Meet>>(){});
+            return mapper.readValue(json, new TypeReference<List<Meet>>() {
+            });
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -53,7 +54,7 @@ public class SportingLifeService {
         return null;
     }
 
-    public RaceDayEntity workOutBetsToPlace(List<Meet> raceDay){
+    public RaceDayEntity workOutBetsToPlace(List<Meet> raceDay) {
         RaceDayEntity response = new RaceDayEntity();
         response.setEventDate(raceDayDate.getCalendar().getTimeInMillis());
 
@@ -74,29 +75,32 @@ public class SportingLifeService {
             meet.getRaces().stream().forEach(race -> {
                 try {
                     System.out.println(RACE_URL + race.getRaceSummaryReference().getId());
-                    race.setRaceDetails(mapper.readValue(httpUtil.getJSONFromUrl(RACE_URL + race.getRaceSummaryReference().getId()), new TypeReference<RaceDetails>() {}));
+                    race.setRaceDetails(mapper.readValue(httpUtil.getJSONFromUrl(RACE_URL + race.getRaceSummaryReference().getId()), new TypeReference<RaceDetails>() {
+                    }));
 
-                    for(Horse horse : race.getRaceDetails().getHorses()){
-                        if(horse.getHorseDetails().getPreviousResults() != null && horse.getHorseDetails().getPreviousResults().size() == 6) {
+                    for (Horse horse : race.getRaceDetails().getHorses()) {
+                        if (horse.getHorseDetails().getPreviousResults() != null && horse.getHorseDetails().getPreviousResults().size() == 6) {
                             System.out.println(HORSE_URL + horse.getHorseDetails().getHorseReference().getId());
-                            horse.getHorseDetails().setPreviousResults(mapper.readValue(new JSONObject(httpUtil.getJSONFromUrl(HORSE_URL + horse.getHorseDetails().getHorseReference().getId())).getJSONArray("previous_results").toString(), new TypeReference<List<Result>>() {}));
+                            horse.getHorseDetails().setPreviousResults(mapper.readValue(new JSONObject(httpUtil.getJSONFromUrl(HORSE_URL + horse.getHorseDetails().getHorseReference().getId())).getJSONArray("previous_results").toString(), new TypeReference<List<Result>>() {
+                            }));
                         }
-                        if(horse.getJockey() != null && horse.getJockey().getJockeyReference() != null) {
+                        if (horse.getJockey() != null && horse.getJockey().getJockeyReference() != null) {
                             System.out.println(JOCKEY_URL + horse.getJockey().getJockeyReference().getId());
-                            horse.setJockey(mapper.readValue(httpUtil.getJSONFromUrl(JOCKEY_URL + horse.getJockey().getJockeyReference().getId()), new TypeReference<Jockey>() {}));
+                            horse.setJockey(mapper.readValue(httpUtil.getJSONFromUrl(JOCKEY_URL + horse.getJockey().getJockeyReference().getId()), new TypeReference<Jockey>() {
+                            }));
                         }
 //                        System.out.println(TRAINER_URL + horse.getTrainer().getTrainerReference().getId());
 //                        horse.setTrainer(mapper.readValue(httpUtil.getJSONFromUrl(TRAINER_URL + horse.getTrainer().getTrainerReference().getId()), new TypeReference<Trainer>() {}));
                     }
 
                     Winner winner = workOutRaceWinner(race);
-                    System.out.println(winner.getName() + " :: " + winner.getCorrect());
+                    System.out.println(winner.getName() + " :: " + winner.getFinishPosition());
 
                     List<Race> raceList = response.getEvents().stream().filter(event -> event.getEventId() == meet.getMeetingSummary().getMeetingReference().getId()).findFirst().get().getRaces();
                     raceList.add(createNewRace(race, winner/*, runner.getSelectionId()*/));
                     response.getEvents().stream().filter(event -> event.getEventId() == meet.getMeetingSummary().getMeetingReference().getId()).findFirst().get().setRaces(raceList);
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             });
@@ -104,7 +108,7 @@ public class SportingLifeService {
         return response;
     }
 
-    private Race createNewRace(RaceSummary race, Winner winner/*, Long betId*/){
+    private Race createNewRace(RaceSummary race, Winner winner/*, Long betId*/) {
         Race raceEntity = new Race();
         raceEntity.setCorrect(null);
         raceEntity.setHorseName(winner.getName());
@@ -117,7 +121,7 @@ public class SportingLifeService {
         return raceEntity;
     }
 
-    private Event createNewEvent(Meet meet){
+    private Event createNewEvent(Meet meet) {
         Event event = new Event();
         event.setEventId(meet.getMeetingSummary().getMeetingReference().getId());
         event.setEventName(meet.getMeetingSummary().getCourse().getName());
@@ -126,18 +130,18 @@ public class SportingLifeService {
         return event;
     }
 
-    private Winner workOutRaceWinner(RaceSummary race){
+    private Winner workOutRaceWinner(RaceSummary race) {
         List<Winner> rankings = new ArrayList<>();
-        for(Horse horse : race.getRaceDetails().getHorses()){
+        for (Horse horse : race.getRaceDetails().getHorses()) {
             Winner temp = new Winner();
             temp.setName(horse.getHorseDetails().getName());
             temp.setOdds(workoutOddsPercentage(horse.getBetting().getCurrentOdds()));
-            if(horse.getRunning()) {
-                temp.setScore(calculateChanceOfWinning(horse, race.getRaceClass()));
-            }else{
+            if (horse.getRunning()) {
+                temp.setScore(calculateChanceOfWinning(horse, race));
+            } else {
                 temp.setScore(-1d);
             }
-            if(horse.getFinishingPosition() != null){
+            if (horse.getFinishingPosition() != null) {
                 temp.setFinishPosition(horse.getFinishingPosition());
             }
             rankings.add(temp);
@@ -145,17 +149,16 @@ public class SportingLifeService {
         rankings.sort(horseComparitor);
         int count = 1;
         Double score = 0d;
-        for (Winner winner : rankings){
-            if(score == 0){
+        for (Winner winner : rankings) {
+            if (score == 0) {
                 score = winner.getScore();
-            }
-            else if(score == winner.getScore()){
+            } else if (score == winner.getScore()) {
                 count++;
             }
         }
 //        System.out.println("potential winners for race : " + count);
 //        System.out.println(rankings.get(0).getFinishPosition());
-        rankings.get(0).setClearWinner(rankings.get(0).getScore() - rankings.get(1).getScore() > 0.5);
+        rankings.get(0).setClearWinner(rankings.get(0).getScore() - rankings.get(1).getScore() > 1);
         return rankings.get(0);
     }
 
@@ -166,25 +169,25 @@ public class SportingLifeService {
         }
     };
 
-    private Double workoutOddsPercentage(String odds){
-        if(odds != null && !odds.equalsIgnoreCase("") && Character.isDigit(odds.charAt(0))){
+    private Double workoutOddsPercentage(String odds) {
+        if (odds != null && !odds.equalsIgnoreCase("") && Character.isDigit(odds.charAt(0))) {
             Double a = Double.parseDouble(odds.split("/")[0]);
             Double b = Double.parseDouble(odds.split("/")[1]);
-            return 1/(a/b);
+            return 1 / (a / b);
         }
         return 0.0;
     }
 
-    private Double calculateChanceOfWinning(Horse horse, Integer raceClass){
+    private Double calculateChanceOfWinning(Horse horse, RaceSummary race) {
         Double score = 0.0;
-//        System.out.println("-----------------------------------");
-//        score += calculationUtil.hasTheHorseWonAnyOfTheirLastRaces(horse).doubleValue();
-//        score += calculationUtil.hasTheHorseFinishedSecondInTheirLastRaces(horse).doubleValue();
+        System.out.println("-----------------------------------");
+        score += calculationUtil.hasTheHorseWonAnyOfTheirLastRaces(horse, 6).doubleValue();
         score += calculationUtil.hasThisJockeyWonWithThisHorseBeforeRecently(horse, 6).doubleValue();
-//        score += calculationUtil.didTheHorseWinItsLastRace(horse);
         score += calculationUtil.checkHorseRecentPerformance(horse, 6);
-        score += calculationUtil.hasTheHorseRanRecently(horse, 6);
-        if(score == 0) {
+        score += calculationUtil.performanceAtThisDistance(horse, 6, race);
+        score += calculationUtil.performanceAtThisGoing(horse, 6, race);
+//        score += calculationUtil.hasTheHorseRanRecently(horse, 6);
+        if (score == 0) {
             score += calculationUtil.checkJockeyRecentPerformance(horse, 6);
 //            score += calculationUtil.horseRatingBonus(horse);
 //            score += calculationUtil.horseOdds(horse);
@@ -193,7 +196,7 @@ public class SportingLifeService {
         }
 
 //        score += calculationUtil.hasTheHorseMovedClass(horse, raceClass);
-        System.out.println(horse.getHorseDetails().getName() + " Overall score " + score + "-----------------------------------");
+        System.out.println(horse.getHorseDetails().getName() + " Overall score " + score + " finished : " + horse.getFinishingPosition() + "-----------------------------------");
         return score;
     }
 }

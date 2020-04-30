@@ -1,15 +1,13 @@
 package com.tom.autobetter.util;
 
 import com.tom.autobetter.data.RaceDayDate;
-import com.tom.autobetter.data.Winner;
-import com.tom.autobetter.entity.betfair.Data;
+import com.tom.autobetter.entity.dynamodb.Race;
 import com.tom.autobetter.entity.sporting_life.Horse;
 import com.tom.autobetter.entity.sporting_life.JockeyTrainerResult;
+import com.tom.autobetter.entity.sporting_life.RaceSummary;
 import com.tom.autobetter.entity.sporting_life.Result;
 
-import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,63 +15,63 @@ public class CalculationUtil {
 
     private RaceDayDate raceDayDate = RaceDayDate.getInstance();
 
-    public Integer hasTheHorseWonAnyOfTheirLastRaces(Horse horse) {
-        return horse.getHorseDetails().getPreviousResults()
-                .stream()
-                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && (result.getPosition() != null && result.getPosition() == 1))
-                .collect(Collectors.toList())
-                .size();
-    }
+    public Double hasTheHorseWonAnyOfTheirLastRaces(Horse horse, Integer howManyResultsToCheck) {
+        int count = 0;
+        Double response = 0d;
 
-    public Double didTheHorseWinItsLastRace(Horse horse) {
-        List<Result> results =  horse.getHorseDetails().getPreviousResults()
+        if (horse.getJockey().getResults() == null) {
+            return 0.0;
+        }
+        List<Result> results = horse.getHorseDetails().getPreviousResults()
                 .stream()
-                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null)
+                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null && result.getPosition() > 0)
                 .collect(Collectors.toList());
 
         if (!results.isEmpty() && results.size() > 0) {
             results.sort(horseComparitor);
-            if (results.get(0).getPosition() == 1) {
-                return 1d;
+            for(Result result : results) {
+                response += result.getPosition() == 1 ? 1 : 0;
+                count++;
+                if (count == howManyResultsToCheck) {
+                    break;
+                }
             }
+            if(response == 0){
+                print("horse wins : ", 0d, null);
+                return 0d;
+            }
+            print("horse wins : ", ((100 / count) * response) / 100, null);
+            return ((100 / count) * response) / 100;
         }
+        print("horse wins : ", 0d, null);
         return 0d;
     }
 
-    public Integer hasTheHorseFinishedSecondInTheirLastRaces(Horse horse) {
-        return horse.getHorseDetails().getPreviousResults()
-                .stream()
-                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && (result.getPosition() != null && result.getPosition() == 2))
-                .collect(Collectors.toList())
-                .size();
-
+    private void print(String type, Double input, Integer intput){
+        System.out.println(type + (input != null ? input : intput));
     }
 
-    public Double checkjockeyRecentPerformance(Horse horse){
-        if (horse.getJockey().getResults() == null) {
-            return 0.0;
-        }
-        List<JockeyTrainerResult> results = horse.getJockey().getResults()
-                .stream()
-                .filter(jockeyTrainerResult -> !raceDayDate.todayOrFutureDate(jockeyTrainerResult.getResult().getDate()) && jockeyTrainerResult.getResult().getPosition() != null)
-                .collect(Collectors.toList());
-        try {
-            return (1.0 / results.size()) * results
-                    .stream()
-                    .filter(jockeyTrainerResult -> jockeyTrainerResult.getResult().getPosition() == 1)
-                    .collect(Collectors.toList())
-                    .size();
-        }catch (Exception e){
-            e.printStackTrace();
-            return 0.0;
-        }
-    }
+//    public Double didTheHorseWinItsLastRace(Horse horse) {
+//        List<Result> results =  horse.getHorseDetails().getPreviousResults()
+//                .stream()
+//                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null)
+//                .collect(Collectors.toList());
+//
+//        if (!results.isEmpty() && results.size() > 0) {
+//            results.sort(horseComparitor);
+//            if (results.get(0).getPosition() == 1) {
+//                return 1d;
+//            }
+//        }
+//        return 0d;
+//    }
 
     public Double checkJockeyRecentPerformance(Horse horse, Integer howManyResultsToCheck){
         int count = 0;
         Double response = 0d;
 
         if (horse.getJockey().getResults() == null) {
+            print("jockey wins : ", 0d, null);
             return 0.0;
         }
         List<JockeyTrainerResult> results = horse.getJockey().getResults()
@@ -92,37 +90,21 @@ public class CalculationUtil {
                 }
             }
             if(response == 0){
+                print("jockey wins : ", 0d, null);
                 return 0d;
             }
-            return (100d - (response / count)) / 100;
+            print("jockey wins : ", (response / count) / 100, null);
+            return (response / count) / 100;
         }
+        print("jockey wins : ", 0d, null);
         return 0d;
-    }
-
-    public Double doesTheTrainerTrainWinningHorses(Horse horse){
-        if (horse.getTrainer().getResults() == null) {
-            return 0.0;
-        }
-        List<JockeyTrainerResult> results = horse.getTrainer().getResults()
-                .stream()
-                .filter(jockeyTrainerResult -> !raceDayDate.todayOrFutureDate(jockeyTrainerResult.getResult().getDate()) && jockeyTrainerResult.getResult().getPosition() != null)
-                .collect(Collectors.toList());
-        try {
-            return (100.0 / results.size()) * results
-                    .stream()
-                    .filter(jockeyTrainerResult -> jockeyTrainerResult.getResult().getPosition() == 1)
-                    .collect(Collectors.toList())
-                    .size();
-        }catch (Exception e){
-            e.printStackTrace();
-            return 0.0;
-        }
     }
 
     public Double hasThisJockeyWonWithThisHorseBeforeRecently(Horse horse, Integer howManyResultsToCheck) {
         Double response = 0d;
         int count = 0;
         if (horse.getJockey().getResults() == null) {
+            print("jockey + horse wins : ", 0d, null);
             return response;
         }
         for (JockeyTrainerResult jockeyTrainerResult : horse.getJockey().getResults()) {
@@ -137,10 +119,13 @@ public class CalculationUtil {
                 break;
             }
             if(response == 0d){
+                print("jockey + horse wins : ", 0d, null);
                 return response;
             }
-            return 100d / ((100d / count) * response);
+            print("jockey + horse wins : ", ((100 / count) * response) / 100, null);
+            return ((100 / count) * response) / 100;
         }
+        print("jockey + horse wins : ", 0d, null);
         return response;
     }
 
@@ -177,23 +162,27 @@ public class CalculationUtil {
 
         List<Result> results =  horse.getHorseDetails().getPreviousResults()
                 .stream()
-                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null && result.getPosition() > 0)
+                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null)
                 .collect(Collectors.toList());
 
         if (!results.isEmpty() && results.size() > 0) {
             results.sort(horseComparitor);
             for(Result result : results) {
-                response += ((100 / result.getRunnerCount()) * result.getPosition()) + ((100 / result.getRunnerCount()) / 2);
+                int pos = result.getPosition() == 0 ? result.getRunnerCount() : result.getPosition();
+                response += ((100 / result.getRunnerCount()) * pos) + ((100 / result.getRunnerCount()) / 2);
                 count++;
                 if (count == howManyResultsToCheck) {
                     break;
                 }
             }
             if(response == 0){
+                print("horse performance : ", 0d, null);
                 return 0d;
             }
-            return (100d - (response / count)) / 100;
+            print("horse performance : ", (response / count) / 100, null);
+            return (response / count) / 100;
         }
+        print("horse performance : ", 0d, null);
         return 0d;
     }
 
@@ -210,7 +199,7 @@ public class CalculationUtil {
             results.sort(horseComparitor);
             for(Result result : results) {
                 count++;
-                if(raceDayDate.isDateWithing6MonthsOfRaceDate(result.getDate())){
+                if(raceDayDate.isDateWithingXMonthsOfRaceDate(result.getDate(), 12)){
                     response++;
                 }
                 if (count == howManyResultsToCheck) {
@@ -218,10 +207,13 @@ public class CalculationUtil {
                 }
             }
             if(response == 0){
+                print("recent runs : ", 0d, null);
                 return 0d;
             }
-            return (100d - (response / count)) / 100;
+            print("recent runs : ", ((100 / count) * response) / 100, null);
+            return ((100 / count) * response) / 100;
         }
+        print("recent runs : ", 0d, null);
         return 0d;
 
     }
@@ -251,6 +243,101 @@ public class CalculationUtil {
         }
         return 0;
     }
+
+
+
+    public Double performanceAtThisDistance(Horse horse, Integer howManyResultsToCheck, RaceSummary race){
+        int count = 0;
+        Double response = 0d;
+
+        List<Result> results =  horse.getHorseDetails().getPreviousResults()
+                .stream()
+                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null &&
+                        race.getDistance().equalsIgnoreCase(result.getDistance()))
+                .collect(Collectors.toList());
+
+        if (!results.isEmpty() && results.size() > 0) {
+            results.sort(horseComparitor);
+            for(Result result : results) {
+                int pos = result.getPosition() == 0 ? result.getRunnerCount() : result.getPosition();
+                response += ((100 / result.getRunnerCount()) * pos) + ((100 / result.getRunnerCount()) / 2);
+                count++;
+                if (count == howManyResultsToCheck) {
+                    break;
+                }
+            }
+            if(response == 0){
+                print("distance performance : ", 0d, null);
+                return 0d;
+            }
+            print("distance performance : ", (response / count) / 100, null);
+            return (response / count) / 100;
+        }
+        print("distance performance : ", 0d, null);
+        return 0.25d;
+    }
+
+    public Double performanceAtThisGoing(Horse horse, Integer howManyResultsToCheck, RaceSummary race){
+        int count = 0;
+        Double response = 0d;
+
+        List<Result> results =  horse.getHorseDetails().getPreviousResults()
+                .stream()
+                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null &&
+                        race.getGoing().equalsIgnoreCase(result.getGoing()))
+                .collect(Collectors.toList());
+
+        if (!results.isEmpty() && results.size() > 0) {
+            results.sort(horseComparitor);
+            for(Result result : results) {
+                int pos = result.getPosition() == 0 ? result.getRunnerCount() : result.getPosition();
+                response += ((100 / result.getRunnerCount()) * pos) + ((100 / result.getRunnerCount()) / 2);
+                count++;
+                if (count == howManyResultsToCheck) {
+                    break;
+                }
+            }
+            if(response == 0){
+                print("going performance : ", 0d, null);
+                return 0d;
+            }
+            print("going performance : ", (response / count) / 100, null);
+            return (response / count) / 100;
+        }
+        print("going performance : ", 0d, null);
+        return 0.25d;
+    }
+
+//    public Double performanceAtRaceType(Horse horse, Integer howManyResultsToCheck, RaceSummary race){
+//        int count = 0;
+//        Double response = 0d;
+//
+//        List<Result> results =  horse.getHorseDetails().getPreviousResults()
+//                .stream()
+//                .filter(result -> !raceDayDate.todayOrFutureDate(result.getDate()) && result.getPosition() != null &&
+//                        race.get().equalsIgnoreCase(result.getDistance()))
+//                .collect(Collectors.toList());
+//
+//        if (!results.isEmpty() && results.size() > 0) {
+//            results.sort(horseComparitor);
+//            for(Result result : results) {
+//                int pos = result.getPosition() == 0 ? result.getRunnerCount() : result.getPosition();
+//                response += ((100 / result.getRunnerCount()) * pos) + ((100 / result.getRunnerCount()) / 2);
+//                count++;
+//                if (count == howManyResultsToCheck) {
+//                    break;
+//                }
+//            }
+//            if(response == 0){
+//                print("race type performance : ", 0d, null);
+//                return 0d;
+//            }
+//            print("race type performance : ", (response / count) / 100, null);
+//            return (response / count) / 100;
+//        }
+//        print("race type performance : ", 0d, null);
+//        return 0d;
+//    }
 
     Comparator<Result> horseComparitor = new Comparator<Result>() {
         @Override

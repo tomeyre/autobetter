@@ -44,11 +44,11 @@ public final class RaceDayDate {
         return false;
     }
 
-    public Boolean isDateWithing6MonthsOfRaceDate(Calendar resultDate){
+    public Boolean isDateWithingXMonthsOfRaceDate(Calendar resultDate, Integer xMonths){
         Calendar sixMonthsAgo = Calendar.getInstance();
         sixMonthsAgo.setTimeInMillis(calendar.getTimeInMillis());
-        sixMonthsAgo.set(Calendar.MONTH, -6);
-        Long diff = calendar.getTimeInMillis() - sixMonthsAgo.getTimeInMillis();
+        sixMonthsAgo.set(Calendar.MONTH, -xMonths);
+        Long diff = resultDate.getTimeInMillis() - sixMonthsAgo.getTimeInMillis();
         if(diff / 1000*60*60*24 > 1000*60*60*24 + (31*3) && diff > 0){
             return true;
         }
