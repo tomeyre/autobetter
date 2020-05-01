@@ -9,10 +9,19 @@ public class Race {
     private String horseName;
     private Boolean correct;
     private String winner;
-    private Double odds;
+    private String odds;
     private Long betId;
     private String raceTime;
     private Boolean clearWinner;
+    private Double score;
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
 
     public Boolean getClearWinner() {
         return clearWinner;
@@ -78,11 +87,11 @@ public class Race {
         this.correct = correct;
     }
 
-    public Double getOdds() {
+    public String getOdds() {
         return odds;
     }
 
-    public void setOdds(Double odds) {
+    public void setOdds(String odds) {
         this.odds = odds;
     }
 }

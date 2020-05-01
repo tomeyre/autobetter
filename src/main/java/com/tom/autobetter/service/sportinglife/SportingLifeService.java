@@ -118,6 +118,7 @@ public class SportingLifeService {
         raceEntity.setBetId(1l);
         raceEntity.setRaceTime(race.getTime());
         raceEntity.setClearWinner(winner.getClearWinner());
+        raceEntity.setScore(winner.getScore());
         return raceEntity;
     }
 
@@ -135,7 +136,7 @@ public class SportingLifeService {
         for (Horse horse : race.getRaceDetails().getHorses()) {
             Winner temp = new Winner();
             temp.setName(horse.getHorseDetails().getName());
-            temp.setOdds(workoutOddsPercentage(horse.getBetting().getCurrentOdds()));
+            temp.setOdds(horse.getBetting().getCurrentOdds());
             if (horse.getRunning()) {
                 temp.setScore(calculateChanceOfWinning(horse, race));
             } else {
@@ -159,6 +160,7 @@ public class SportingLifeService {
 //        System.out.println("potential winners for race : " + count);
 //        System.out.println(rankings.get(0).getFinishPosition());
         rankings.get(0).setClearWinner(rankings.get(0).getScore() - rankings.get(1).getScore() > 1);
+        rankings.get(0).setScore(rankings.get(0).getScore() - rankings.get(1).getScore());
         return rankings.get(0);
     }
 
@@ -186,6 +188,7 @@ public class SportingLifeService {
         score += calculationUtil.checkHorseRecentPerformance(horse, 6);
         score += calculationUtil.performanceAtThisDistance(horse, 6, race);
         score += calculationUtil.performanceAtThisGoing(horse, 6, race);
+        score += calculationUtil.performanceAtThisClass(horse, 6, race);
 //        score += calculationUtil.hasTheHorseRanRecently(horse, 6);
         if (score == 0) {
             score += calculationUtil.checkJockeyRecentPerformance(horse, 6);

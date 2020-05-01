@@ -3,7 +3,7 @@ package com.tom.autobetter.data;
 public class Winner {
 
     private String name;
-    private Double odds;
+    private String odds;
     private Double score;
     private Integer finishPosition;
     private Boolean correct;
@@ -41,11 +41,11 @@ public class Winner {
         this.name = name;
     }
 
-    public Double getOdds() {
+    public String getOdds() {
         return odds;
     }
 
-    public void setOdds(Double odds) {
+    public void setOdds(String odds) {
         this.odds = odds;
     }
 

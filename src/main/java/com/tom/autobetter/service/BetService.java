@@ -62,7 +62,7 @@ public class BetService {
             for (int i = 0; i < raceDayEntity.getEvents().size(); i++) {
                 message.append(MessageFormat.format("\r\n{0}, {1} races\r\n\r\n", raceDayEntity.getEvents().get(i).getEventName(), raceDayEntity.getEvents().get(i).getRaces().size()));
                 for (Race race : raceDayEntity.getEvents().get(i).getRaces()) {
-                    message.append(MessageFormat.format("Race {0} my guess {1} {2}\r\n", race.getRaceTime(), race.getHorseName(), race.getClearWinner() ? "CLEAR WINNER" : ""));
+                    message.append(MessageFormat.format("Race {0} my GUESS {1} {2}\r\n", race.getRaceTime(), race.getHorseName(), race.getClearWinner() ? "CLEAR WINNER" : ""));
                 }
             }
         }
@@ -86,7 +86,7 @@ public class BetService {
             for (int i = 0; i < raceDayEntity.getEvents().size(); i++) {
                 message.append(MessageFormat.format("\r\n{0} {1} out of {2} correct\r\n\r\n", raceDayEntity.getEvents().get(i).getEventName(), raceDayEntity.getWinPercentages().get(i).getWins(), raceDayEntity.getEvents().get(i).getRaces().size()));
                 for (Race race : raceDayEntity.getEvents().get(i).getRaces()) {
-                    message.append(MessageFormat.format("Race {0} my guess {1}, actual winner {2} {3}\r\n", race.getRaceTime(), race.getHorseName(), race.getWinner(), race.getCorrect()));
+                    message.append(MessageFormat.format("Race {0} my GUESS {1}, WINNER {2} :: {3} ODDS {4} DIFF {5}\r\n", race.getRaceTime(), race.getHorseName(), race.getWinner(), race.getCorrect(), race.getOdds(), race.getScore()));
                 }
             }
         }
