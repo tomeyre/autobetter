@@ -138,7 +138,7 @@ public class BetService {
     private String setFinishTime(String time){
         int a = Integer.parseInt(time.split(":")[0]);
         int b = Integer.parseInt(time.split(":")[1]);
-        b+=30;
+        b+=45;
         if(b>60){
             b %= 60;
             a++;
