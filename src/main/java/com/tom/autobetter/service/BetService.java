@@ -95,7 +95,7 @@ public class BetService {
                 results.put(match.getTeamScoreA().getTeam().getName(), sportingLifeService.getFootballMatchDetailsById(match.getTeamScoreA().getTeam().getTeamReference().getId(), match.getTeamScoreB().getTeam().getName()));
                 results.put(match.getTeamScoreB().getTeam().getName(), sportingLifeService.getFootballMatchDetailsById(match.getTeamScoreB().getTeam().getTeamReference().getId(), match.getTeamScoreA().getTeam().getName()));
 
-                System.out.println(sb.append(match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() + " vs " + match.getTeamScoreB().getTeam().getName() + " " + results.get(match.getTeamScoreB().getTeam().getName()).getScore() + " || winner is " +
+                System.out.println(sb.append(match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() + " \nvs \n" + match.getTeamScoreB().getTeam().getName() + " \n" + results.get(match.getTeamScoreB().getTeam().getName()).getScore() + " \nwinner is " +
                         (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                 match.getTeamScoreA().getTeam().getName() :
                                 results.get(match.getTeamScoreA().getTeam().getName()).getScore() == results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
