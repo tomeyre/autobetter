@@ -97,21 +97,15 @@ public class BetService {
                 results.put(match.getTeamScoreA().getTeam().getName(), sportingLifeService.getFootballMatchDetailsById(match.getTeamScoreA().getTeam().getTeamReference().getId(), match.getTeamScoreB().getTeam().getName()));
                 results.put(match.getTeamScoreB().getTeam().getName(), sportingLifeService.getFootballMatchDetailsById(match.getTeamScoreB().getTeam().getTeamReference().getId(), match.getTeamScoreA().getTeam().getName()));
 
-                System.out.println(sb.append(match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() + " \nvs \n" + match.getTeamScoreB().getTeam().getName() + " " + results.get(match.getTeamScoreB().getTeam().getName()).getScore() + " \nwinner is " +
-                        ((results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
-                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
-                                results.get(match.getTeamScoreB().getTeam().getName()).getScore() - results.get(match.getTeamScoreA().getTeam().getName()).getScore()) < THRESHHOLD ?
-                                "DRAW" : results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
-                                match.getTeamScoreA().getTeam().getName() :
-                                 match.getTeamScoreB().getTeam().getName()) +
+                System.out.println(sb.append(
+                        match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() +
+                        " \nvs \n" +
+                        match.getTeamScoreB().getTeam().getName() + " " + results.get(match.getTeamScoreB().getTeam().getName()).getScore() +
+                        " \nwinner is " +
+                        guessWinner(match, results) +
                         (match.getState().equalsIgnoreCase("FULLTIME") ?
-                                results.get(match.getTeamScoreA().getTeam().getName()).getWinner().equalsIgnoreCase(
-                                        ((results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
-                                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
-                                                results.get(match.getTeamScoreB().getTeam().getName()).getScore() - results.get(match.getTeamScoreA().getTeam().getName()).getScore()) < THRESHHOLD ?
-                                                "DRAW" : results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
-                                                match.getTeamScoreA().getTeam().getName() :
-                                                match.getTeamScoreB().getTeam().getName())) ? " CORRECT" : " INCORRECT" :
+                                (guessWinner(match, results).equalsIgnoreCase(match.getMatchOutcome().getWinner() != null ?
+                                        match.getMatchOutcome().getWinner().getName() : "DRAW") ? "\nCORRECT" : " \nINCORRECT") :
                                 "\nGame Due To Finish " + setFinishTime(match.getMatchTime()) +
                                 "\nCurrent Score\n" +
                                 match.getTeamScoreA().getTeam().getName() + " : " + match.getTeamScoreA().getScore().get(0).getScore() + "\n" +
@@ -133,6 +127,16 @@ public class BetService {
         System.out.println(sb.append("Correct : " + correct + " out of " + matches));
 
         return sb.toString();
+    }
+
+    private String guessWinner(FootballMatch match, HashMap<String, FootballTeamResult> results){
+        return (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
+                results.get(match.getTeamScoreB().getTeam().getName()).getScore() - results.get(match.getTeamScoreA().getTeam().getName()).getScore()) < THRESHHOLD ?
+                "DRAW" :
+                results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                match.getTeamScoreA().getTeam().getName() :
+                match.getTeamScoreB().getTeam().getName();
     }
 
     private String setFinishTime(String time){
