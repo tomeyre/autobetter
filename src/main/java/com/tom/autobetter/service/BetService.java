@@ -147,7 +147,7 @@ public class BetService {
         if(a>24){
             a-=24;
         }
-        return a + ":" + b;
+        return a + ":" + (b == 0 ? "00" : b);
     }
 
     public String checkWinners(){
