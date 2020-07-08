@@ -95,19 +95,19 @@ public class BetService {
                 results.put(match.getTeamScoreA().getTeam().getName(), sportingLifeService.getFootballMatchDetailsById(match.getTeamScoreA().getTeam().getTeamReference().getId(), match.getTeamScoreB().getTeam().getName()));
                 results.put(match.getTeamScoreB().getTeam().getName(), sportingLifeService.getFootballMatchDetailsById(match.getTeamScoreB().getTeam().getTeamReference().getId(), match.getTeamScoreA().getTeam().getName()));
 
-                System.out.println(sb.append(match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() + " \nvs \n" + match.getTeamScoreB().getTeam().getName() + " \n" + results.get(match.getTeamScoreB().getTeam().getName()).getScore() + " \nwinner is " +
+                System.out.println(sb.append(match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() + " \nvs \n" + match.getTeamScoreB().getTeam().getName() + " " + results.get(match.getTeamScoreB().getTeam().getName()).getScore() + " \nwinner is " +
                         (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                 match.getTeamScoreA().getTeam().getName() :
                                 results.get(match.getTeamScoreA().getTeam().getName()).getScore() == results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                         "DRAW" : match.getTeamScoreB().getTeam().getName()) +
-                        " ::: actual winner" +
+                        " \nactual winner" +
                         (match.getState().equalsIgnoreCase("FULLTIME") ?
                                 results.get(match.getTeamScoreA().getTeam().getName()).getWinner().equalsIgnoreCase(
                                         (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                                 match.getTeamScoreA().getTeam().getName() :
                                                 results.get(match.getTeamScoreA().getTeam().getName()).getScore() == results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                                         " INCORRECT" : match.getTeamScoreB().getTeam().getName())) ? " CORRECT" : " INCORRECT" : " UNKNOWN") +
-                        " ::: POINT DIF ::: " +
+                        " \nPOINT DIF " +
                         (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                 results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
                                 results.get(match.getTeamScoreB().getTeam().getName()).getScore() - results.get(match.getTeamScoreA().getTeam().getName()).getScore())));
