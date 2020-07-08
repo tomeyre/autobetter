@@ -139,7 +139,7 @@ public class BetService {
         int a = Integer.parseInt(time.split(":")[0]);
         int b = Integer.parseInt(time.split(":")[1]);
         b+=45;
-        if(b>60){
+        if(b>=60){
             b %= 60;
             a++;
         }
