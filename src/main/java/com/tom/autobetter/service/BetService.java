@@ -114,8 +114,8 @@ public class BetService {
                                                 match.getTeamScoreB().getTeam().getName())) ? " CORRECT" : " INCORRECT" :
                                 "Game Due To Finish " + setFinishTime(match.getMatchTime()) +
                                 "\nCurrent Score\n" +
-                                match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() + "\n" +
-                                        match.getTeamScoreB().getTeam().getName() + " " + results.get(match.getTeamScoreB().getTeam().getName()).getScore()) +
+                                match.getTeamScoreA().getTeam().getName() + " : " + match.getTeamScoreA().getScore().get(0) + "\n" +
+                                        match.getTeamScoreB().getTeam().getName() + " : " + match.getTeamScoreB().getScore().get(0) +
                         " \nPOINT DIF " +
                         (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                 results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
