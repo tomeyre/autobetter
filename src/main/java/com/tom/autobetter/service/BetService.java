@@ -112,7 +112,7 @@ public class BetService {
                                                 "DRAW" : results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                                 match.getTeamScoreA().getTeam().getName() :
                                                 match.getTeamScoreB().getTeam().getName())) ? " CORRECT" : " INCORRECT" :
-                                "Game Due To Finish " + setFinishTime(match.getMatchTime()) +
+                                "\nGame Due To Finish " + setFinishTime(match.getMatchTime()) +
                                 "\nCurrent Score\n" +
                                 match.getTeamScoreA().getTeam().getName() + " : " + match.getTeamScoreA().getScore().get(0).getScore() + "\n" +
                                         match.getTeamScoreB().getTeam().getName() + " : " + match.getTeamScoreB().getScore().get(0).getScore()) +
