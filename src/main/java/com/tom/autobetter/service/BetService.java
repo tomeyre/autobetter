@@ -98,7 +98,8 @@ public class BetService {
                 System.out.println(sb.append(match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() + " \nvs \n" + match.getTeamScoreB().getTeam().getName() + " " + results.get(match.getTeamScoreB().getTeam().getName()).getScore() + " \nwinner is " +
                         (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                 match.getTeamScoreA().getTeam().getName() :
-                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() == results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() - 3 &
+                                        results.get(match.getTeamScoreA().getTeam().getName()).getScore() < results.get(match.getTeamScoreB().getTeam().getName()).getScore() + 3 ?
                                         "DRAW" : match.getTeamScoreB().getTeam().getName()) +
                         " \nactual winner" +
                         (match.getState().equalsIgnoreCase("FULLTIME") ?
@@ -114,7 +115,8 @@ public class BetService {
                 correct += results.get(match.getTeamScoreA().getTeam().getName()).getWinner().equalsIgnoreCase(
                         (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                 match.getTeamScoreA().getTeam().getName() :
-                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() == results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() - 3 &
+                                        results.get(match.getTeamScoreA().getTeam().getName()).getScore() < results.get(match.getTeamScoreB().getTeam().getName()).getScore() + 3 ?
                                         "DRAW" : match.getTeamScoreB().getTeam().getName())) ? 1 : 0;
                 sb.append("\n\n");
             }
