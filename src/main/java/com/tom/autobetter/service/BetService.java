@@ -34,6 +34,8 @@ public class BetService {
     public static final String COUNTRY = "United States";//"England";
     private static final String RACE_URL = "https://www.sportinglife.com/api/horse-racing/race/";
 
+    final int THRESHHOLD = 5;
+
     @Autowired
     SportingLifeService sportingLifeService;
 
@@ -96,28 +98,32 @@ public class BetService {
                 results.put(match.getTeamScoreB().getTeam().getName(), sportingLifeService.getFootballMatchDetailsById(match.getTeamScoreB().getTeam().getTeamReference().getId(), match.getTeamScoreA().getTeam().getName()));
 
                 System.out.println(sb.append(match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() + " \nvs \n" + match.getTeamScoreB().getTeam().getName() + " " + results.get(match.getTeamScoreB().getTeam().getName()).getScore() + " \nwinner is " +
-                        (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                        ((results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
+                                results.get(match.getTeamScoreB().getTeam().getName()).getScore() - results.get(match.getTeamScoreA().getTeam().getName()).getScore()) < THRESHHOLD ?
+                                "DRAW" : results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                 match.getTeamScoreA().getTeam().getName() :
-                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() - 3 &
-                                        results.get(match.getTeamScoreA().getTeam().getName()).getScore() < results.get(match.getTeamScoreB().getTeam().getName()).getScore() + 3 ?
-                                        "DRAW" : match.getTeamScoreB().getTeam().getName()) +
+                                 match.getTeamScoreB().getTeam().getName()) +
                         " \nactual winner" +
                         (match.getState().equalsIgnoreCase("FULLTIME") ?
                                 results.get(match.getTeamScoreA().getTeam().getName()).getWinner().equalsIgnoreCase(
-                                        (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                        ((results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
+                                                results.get(match.getTeamScoreB().getTeam().getName()).getScore() - results.get(match.getTeamScoreA().getTeam().getName()).getScore()) < THRESHHOLD ?
+                                                "DRAW" : results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                                 match.getTeamScoreA().getTeam().getName() :
-                                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() == results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
-                                                        " INCORRECT" : match.getTeamScoreB().getTeam().getName())) ? " CORRECT" : " INCORRECT" : " UNKNOWN") +
+                                                match.getTeamScoreB().getTeam().getName())) ? " CORRECT" : " INCORRECT" : " UNKNOWN") +
                         " \nPOINT DIF " +
                         (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                 results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
                                 results.get(match.getTeamScoreB().getTeam().getName()).getScore() - results.get(match.getTeamScoreA().getTeam().getName()).getScore())));
                 correct += results.get(match.getTeamScoreA().getTeam().getName()).getWinner().equalsIgnoreCase(
-                        (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                        ((results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
+                                results.get(match.getTeamScoreB().getTeam().getName()).getScore() - results.get(match.getTeamScoreA().getTeam().getName()).getScore()) < THRESHHOLD ?
+                                "DRAW" : results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
                                 match.getTeamScoreA().getTeam().getName() :
-                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() - 3 &
-                                        results.get(match.getTeamScoreA().getTeam().getName()).getScore() < results.get(match.getTeamScoreB().getTeam().getName()).getScore() + 3 ?
-                                        "DRAW" : match.getTeamScoreB().getTeam().getName())) ? 1 : 0;
+                                match.getTeamScoreB().getTeam().getName())) ? 1 : 0;
                 sb.append("\n\n");
             }
         }
