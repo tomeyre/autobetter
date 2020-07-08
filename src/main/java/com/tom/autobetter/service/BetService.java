@@ -2,18 +2,18 @@ package com.tom.autobetter.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tom.autobetter.data.FootballTeamResult;
 import com.tom.autobetter.data.RaceDayDate;
 import com.tom.autobetter.entity.dynamodb.Race;
 import com.tom.autobetter.entity.dynamodb.RaceDayEntity;
 import com.tom.autobetter.entity.dynamodb.Event;
 import com.tom.autobetter.entity.dynamodb.WinPercentage;
-import com.tom.autobetter.entity.sporting_life.Horse;
-import com.tom.autobetter.entity.sporting_life.Meet;
-import com.tom.autobetter.entity.sporting_life.RaceDetails;
-import com.tom.autobetter.entity.sporting_life.RaceSummary;
-import com.tom.autobetter.enums.BetType;
+import com.tom.autobetter.entity.sporting_life.horse.Horse;
+import com.tom.autobetter.entity.sporting_life.horse.Meet;
+import com.tom.autobetter.entity.sporting_life.horse.RaceDetails;
+import com.tom.autobetter.entity.sporting_life.horse.RaceSummary;
+import com.tom.autobetter.entity.sporting_life.football.FootballMatch;
 import com.tom.autobetter.repository.dynamodb.AutobetterRepository;
-import com.tom.autobetter.service.betfair.BetfairService;
 import com.tom.autobetter.service.sportinglife.SportingLifeService;
 //import com.tom.autobetter.service.sportinglife.betting.WebPageBetting;
 import com.tom.autobetter.util.HttpUtil;
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tom.autobetter.enums.BetType.*;
 
@@ -46,7 +45,7 @@ public class BetService {
 
     private RaceDayDate raceDayDate = RaceDayDate.getInstance();
 
-    public String placeBets(){
+    public String placeHorseBets(){
 
         List<Meet> raceDay = sportingLifeService.getTheDaysRaces().stream().filter(meet -> meet.getMeetingSummary().getCourse().getCountry().getCountry().equalsIgnoreCase(COUNTRY)).collect(Collectors.toList());
         RaceDayEntity betsToPlace = sportingLifeService.workOutBetsToPlace(raceDay);
@@ -71,6 +70,58 @@ public class BetService {
 //        sendEmailSMTP.sendMessage(message.toString(), "Bets have been placed");
 
         return message.toString();
+    }
+
+    public String placeFootballBets(){
+        List<FootballMatch> daysMatches = sportingLifeService.getFootballMatchesForDate();
+        return workOutBetsToPlace(daysMatches);
+        //iterate through list each time getting the form
+        //https://www.sportinglife.com/api/football/form?match_id={can be gotten from the above}
+        //https://www.sportinglife.com/api/football/team/5 historic results for team
+
+//        System.out.println(daysMatches.size());
+
+//        return null;
+    }
+
+    private String workOutBetsToPlace(List<FootballMatch> daysMatches){
+        HashMap<String, FootballTeamResult> results = new HashMap<>();
+        int correct = 0;
+        int matches = 0;
+        StringBuilder sb = new StringBuilder();
+        for(FootballMatch match : daysMatches){
+            if(match.getCompetition().getCompetitionReference().getId() == 1) {
+                matches++;
+                results.put(match.getTeamScoreA().getTeam().getName(), sportingLifeService.getFootballMatchDetailsById(match.getTeamScoreA().getTeam().getTeamReference().getId(), match.getTeamScoreB().getTeam().getName()));
+                results.put(match.getTeamScoreB().getTeam().getName(), sportingLifeService.getFootballMatchDetailsById(match.getTeamScoreB().getTeam().getTeamReference().getId(), match.getTeamScoreA().getTeam().getName()));
+
+                System.out.println(sb.append(match.getTeamScoreA().getTeam().getName() + " " + results.get(match.getTeamScoreA().getTeam().getName()).getScore() + " vs " + match.getTeamScoreB().getTeam().getName() + " " + results.get(match.getTeamScoreB().getTeam().getName()).getScore() + " || winner is " +
+                        (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                match.getTeamScoreA().getTeam().getName() :
+                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() == results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                        "DRAW" : match.getTeamScoreB().getTeam().getName()) +
+                        " ::: actual winner" +
+                        (match.getState().equalsIgnoreCase("FULLTIME") ?
+                                results.get(match.getTeamScoreA().getTeam().getName()).getWinner().equalsIgnoreCase(
+                                        (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                                match.getTeamScoreA().getTeam().getName() :
+                                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() == results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                                        " INCORRECT" : match.getTeamScoreB().getTeam().getName())) ? " CORRECT" : " INCORRECT" : " UNKNOWN") +
+                        " ::: POINT DIF ::: " +
+                        (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() - results.get(match.getTeamScoreB().getTeam().getName()).getScore() :
+                                results.get(match.getTeamScoreB().getTeam().getName()).getScore() - results.get(match.getTeamScoreA().getTeam().getName()).getScore())));
+                correct += results.get(match.getTeamScoreA().getTeam().getName()).getWinner().equalsIgnoreCase(
+                        (results.get(match.getTeamScoreA().getTeam().getName()).getScore() > results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                match.getTeamScoreA().getTeam().getName() :
+                                results.get(match.getTeamScoreA().getTeam().getName()).getScore() == results.get(match.getTeamScoreB().getTeam().getName()).getScore() ?
+                                        "DRAW" : match.getTeamScoreB().getTeam().getName())) ? 1 : 0;
+                sb.append("\n\n");
+            }
+        }
+        System.out.println(sb.append("Correct : " + correct + " out of " + matches));
+
+        return sb.toString();
     }
 
     public String checkWinners(){

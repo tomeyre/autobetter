@@ -2,16 +2,23 @@ package com.tom.autobetter.service.sportinglife;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tom.autobetter.data.FootballTeamResult;
 import com.tom.autobetter.data.RaceDayDate;
 import com.tom.autobetter.data.Winner;
 import com.tom.autobetter.entity.betfair.MarketFilter;
 import com.tom.autobetter.entity.dynamodb.Event;
 import com.tom.autobetter.entity.dynamodb.Race;
 import com.tom.autobetter.entity.dynamodb.RaceDayEntity;
-import com.tom.autobetter.entity.sporting_life.*;
+import com.tom.autobetter.entity.sporting_life.football.Competition;
+import com.tom.autobetter.entity.sporting_life.football.FootballMatch;
+import com.tom.autobetter.entity.sporting_life.football.Team;
+import com.tom.autobetter.entity.sporting_life.football.TeamResult;
+import com.tom.autobetter.entity.sporting_life.horse.*;
 import com.tom.autobetter.repository.dynamodb.AutobetterRepository;
 import com.tom.autobetter.util.CalculationUtil;
+import com.tom.autobetter.util.CommonConstants;
 import com.tom.autobetter.util.HttpUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +26,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.tom.autobetter.util.CommonConstants.WIN;
 
 @Service
 public class SportingLifeService {
@@ -32,6 +42,9 @@ public class SportingLifeService {
     private CalculationUtil calculationUtil = new CalculationUtil();
     private RaceDayDate raceDayDate = RaceDayDate.getInstance();
     private static final String RACE_DAY_URL = "https://www.sportinglife.com/api/horse-racing/racing/racecards/";
+    private static final String FOOTBALL_MATCHES_BY_DAY_URL = "https://www.sportinglife.com/api/football/match_day?match_date=";
+    private static final String FOOTBALL_TEAM_BY_ID_URL = "https://www.sportinglife.com/api/football/team/";//https://www.sportinglife.com/api/football/form?match_id=";
+    private static final String FOOTBALL_COMPETITION_BY_ID_URL = "https://www.sportinglife.com/api/football/competition/";
     private static final String RACE_URL = "https://www.sportinglife.com/api/horse-racing/race/";
     private static final String HORSE_URL = "https://www.sportinglife.com/api/horse-racing/horse/";
     private static final String JOCKEY_URL = "https://www.sportinglife.com/api/horse-racing/jockey/";
@@ -107,6 +120,137 @@ public class SportingLifeService {
         });
         return response;
     }
+
+    public List<FootballMatch> getFootballMatchesForDate(){
+        System.out.println(FOOTBALL_MATCHES_BY_DAY_URL + raceDayDate.getYear() + "-" + (raceDayDate.getMonth() + 1) + "-" + raceDayDate.getDayOfMonth());
+        String json = httpUtil.getJSONFromUrl(FOOTBALL_MATCHES_BY_DAY_URL + raceDayDate.getYear() + "-" + (raceDayDate.getMonth() + 1) + "-" + raceDayDate.getDayOfMonth());
+        try {
+            return mapper.readValue(json, new TypeReference<List<FootballMatch>>() {
+            });
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public FootballTeamResult getFootballMatchDetailsById(Integer id, String vs){
+        System.out.println(FOOTBALL_TEAM_BY_ID_URL + id);
+        String json = httpUtil.getJSONFromUrl(FOOTBALL_TEAM_BY_ID_URL + id);
+        try {
+            mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+            TeamResult teamResult = mapper.readValue(json, new TypeReference<TeamResult>() {});
+            return getResults(teamResult, vs);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private FootballTeamResult getResults(TeamResult teamResult, String vs){
+        if(teamResult.getMatch().isEmpty() || teamResult.getMatch().size() == 0) return new FootballTeamResult(teamResult.getTeam().getName(), 0d, vs);
+        String teamToCheck = teamResult.getTeam().getName();
+        FootballMatch matchResult = teamResult.getMatch().stream().filter(match -> raceDayDate.isTodaysDate(match.getMatchDate())).findFirst().orElse(null);
+        teamResult.setMatch(teamResult.getMatch().stream().filter(match -> !raceDayDate.todayOrFutureDate(match.getMatchDate())).collect(Collectors.toList()));
+        Double score = 0d;
+        Double wins = 0d;
+        Double totalMatchesAgainstMatchedTeam = 0d;
+        Double winsAgainstMatchedTeam = 0d;
+        Double recentWins = 0d;
+        teamResult.getMatch().sort(matchComparator);
+        int recentTotal = 10;
+        int count = 0;
+        for(FootballMatch match : teamResult.getMatch()){
+            count++;
+            if(match.getMatchOutcome() != null && match.getMatchOutcome().getOutcome().equalsIgnoreCase(WIN)){
+                if(match.getTeamScoreA().getTeam().getName().equalsIgnoreCase(teamToCheck) &&
+                match.getMatchOutcome().getWinner().getName().equalsIgnoreCase(match.getTeamScoreA().getTeam().getName())){
+                    wins++;
+                    if(count < recentTotal) {
+                        recentWins++;
+                    }
+                }
+                else if(match.getTeamScoreB().getTeam().getName().equalsIgnoreCase(teamToCheck) &&
+                        match.getMatchOutcome().getWinner().getName().equalsIgnoreCase(match.getTeamScoreB().getTeam().getName())){
+                    wins++;
+                    if(count < recentTotal) {
+                        recentWins++;
+                    }
+                }
+                if(match.getTeamScoreA().getTeam().getName().equalsIgnoreCase(vs) &&
+                        match.getMatchOutcome().getWinner().getName().equalsIgnoreCase(match.getTeamScoreA().getTeam().getName())){
+                    winsAgainstMatchedTeam++;
+                    totalMatchesAgainstMatchedTeam++;
+                }
+                else if(match.getTeamScoreB().getTeam().getName().equalsIgnoreCase(vs) &&
+                        match.getMatchOutcome().getWinner().getName().equalsIgnoreCase(match.getTeamScoreB().getTeam().getName())){
+                    winsAgainstMatchedTeam++;
+                    totalMatchesAgainstMatchedTeam++;
+                } else if (match.getTeamScoreA().getTeam().getName().equalsIgnoreCase(vs) || match.getTeamScoreB().getTeam().getName().equalsIgnoreCase(vs)){
+                    totalMatchesAgainstMatchedTeam++;
+                }
+            }else{
+                if (match.getTeamScoreA().getTeam().getName().equalsIgnoreCase(vs) || match.getTeamScoreB().getTeam().getName().equalsIgnoreCase(vs)){
+                    totalMatchesAgainstMatchedTeam++;
+                }
+            }
+        }
+
+        if(matchResult != null && matchResult.getMatchOutcome() != null) {
+            Double compRank = getCompRank(matchResult, vs);
+            System.out.println("Rank Score : " + compRank);
+            score += compRank;
+        }
+        if(teamResult.getMatch().size() > 0) {
+            System.out.println(teamResult.getTeam().getName());
+            System.out.println("wins " + wins);
+            score += wins;
+            System.out.println("wins against matched team " + winsAgainstMatchedTeam);
+            score += winsAgainstMatchedTeam;
+            if (count > 0) {
+                System.out.println("recent wins " + recentWins);
+                score += recentWins;
+            }
+        }
+
+        FootballTeamResult response = new FootballTeamResult();
+        response.setScore(score);
+        if(matchResult != null && matchResult.getMatchOutcome() != null){
+            response.setWinner(matchResult.getMatchOutcome().getOutcome().equalsIgnoreCase(WIN) ? matchResult.getMatchOutcome().getWinner().getName() : "DRAW");
+        }else{
+            response.setWinner("UNKOWN");
+        }
+        return response;
+    }
+
+    private Double getCompRank(FootballMatch footballMatch, String vs) {
+        try {
+            System.out.println(FOOTBALL_COMPETITION_BY_ID_URL + footballMatch.getCompetition().getCompetitionReference().getId());
+            Competition competition = (mapper.readValue(httpUtil.getJSONFromUrl(FOOTBALL_COMPETITION_BY_ID_URL + footballMatch.getCompetition().getCompetitionReference().getId()), new TypeReference<Competition>() {}));
+            for(int i = 0; i < competition.getTeams().size(); i++){
+                if(competition.getTeams().get(i).getName().equalsIgnoreCase(footballMatch.getTeamScoreA().getTeam().getName()) && !footballMatch.getTeamScoreA().getTeam().getName().equalsIgnoreCase(vs)){
+                    System.out.println("Rank : " + i);
+                    return 0d + competition.getTeams().size() - i;
+                }else if(competition.getTeams().get(i).getName().equalsIgnoreCase(footballMatch.getTeamScoreB().getTeam().getName()) && !footballMatch.getTeamScoreB().getTeam().getName().equalsIgnoreCase(vs)){
+                    System.out.println("Rank : " + i);
+                    return 0d + competition.getTeams().size() - i;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0d;
+    }
+
+    Comparator<FootballMatch> matchComparator = new Comparator<FootballMatch>() {
+        @Override
+        public int compare(FootballMatch e1, FootballMatch e2) {
+            return new Long(e2.getMatchDate().getTime()).compareTo(new Long(e1.getMatchDate().getTime()));
+        }
+    };
 
     private Race createNewRace(RaceSummary race, Winner winner/*, Long betId*/) {
         Race raceEntity = new Race();
@@ -190,13 +334,13 @@ public class SportingLifeService {
         score += calculationUtil.performanceAtThisGoing(horse, 6, race);
         score += calculationUtil.performanceAtThisClass(horse, 6, race);
 //        score += calculationUtil.hasTheHorseRanRecently(horse, 6);
-        if (score == 0) {
+//        if (score == 1.5) {
             score += calculationUtil.checkJockeyRecentPerformance(horse, 6);
 //            score += calculationUtil.horseRatingBonus(horse);
 //            score += calculationUtil.horseOdds(horse);
 //            score /= 3d;
 
-        }
+//        }
 
 //        score += calculationUtil.hasTheHorseMovedClass(horse, raceClass);
         System.out.println(horse.getHorseDetails().getName() + " Overall score " + score + " finished : " + horse.getFinishingPosition() + "-----------------------------------");

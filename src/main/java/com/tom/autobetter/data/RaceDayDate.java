@@ -1,9 +1,7 @@
 package com.tom.autobetter.data;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import org.springframework.stereotype.Component;
-
 import java.util.Calendar;
+import java.util.Date;
 
 public final class RaceDayDate {
 
@@ -29,6 +27,35 @@ public final class RaceDayDate {
     }
 
     public Boolean todayOrFutureDate(Calendar resultDate){
+        if(resultDate.get(Calendar.YEAR) > calendar.get(Calendar.YEAR)){
+            return true;
+        }
+        if(resultDate.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) &&
+                resultDate.get(Calendar.MONTH) > calendar.get(Calendar.MONTH)){
+            return true;
+        }
+        if(resultDate.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) &&
+                resultDate.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) &&
+                resultDate.get(Calendar.DAY_OF_MONTH) >= calendar.get(Calendar.DAY_OF_MONTH)){
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean isTodaysDate(Date date){
+        Calendar resultDate = Calendar.getInstance();
+        resultDate.setTime(date);
+        if(resultDate.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) &&
+                resultDate.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) &&
+                resultDate.get(Calendar.DAY_OF_MONTH) == calendar.get(Calendar.DAY_OF_MONTH)){
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean todayOrFutureDate(Date date){
+        Calendar resultDate = Calendar.getInstance();
+        resultDate.setTime(date);
         if(resultDate.get(Calendar.YEAR) > calendar.get(Calendar.YEAR)){
             return true;
         }

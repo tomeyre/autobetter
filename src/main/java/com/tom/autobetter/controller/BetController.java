@@ -19,10 +19,16 @@ public class BetController {
         return "alright fucker im awake!!!";
     }
 
-    @GetMapping(value = "/placeBets/{0}", produces = "application/json")
-    public String placeBets(@PathVariable("0") final String date){
+    @GetMapping(value = "/placeBets/horse/{0}", produces = "application/json")
+    public String placeHorseBets(@PathVariable("0") final String date){
         raceDayDate.setCalendar(date);
-        return betService.placeBets();
+        return betService.placeHorseBets();
+    }
+
+    @GetMapping(value = "/placeBets/football/{0}", produces = "application/json")
+    public String placeFootballBets(@PathVariable("0") final String date){
+        raceDayDate.setCalendar(date);
+        return betService.placeFootballBets();
     }
 
     @GetMapping(value = "/checkWinners/{0}", produces = "application/json")
