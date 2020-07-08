@@ -143,7 +143,7 @@ public class BetService {
             b %= 60;
             a++;
         }
-        a++;
+        a+=2;
         if(a>24){
             a-=24;
         }
